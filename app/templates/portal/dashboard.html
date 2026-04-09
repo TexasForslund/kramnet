@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Mina konton – Kramnet{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 1.5rem; margin-bottom: 1.5rem;">
+  Hej, {{ customer.name }}
+</h1>
+
+{% if email_accounts %}
+<div class="card">
+  <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Dina e-postkonton</h2>
+
+  {% for account in email_accounts %}
+  <div class="account-row">
+    <div>
+      <div style="font-weight: 600; font-size: 1rem;">{{ account.address }}</div>
+      <div style="font-size: .875rem; color: #666; margin-top: .2rem;">
+        Paket: {{ "Familj" if account.package_type == "family" else "Enskild" }}
+        &nbsp;·&nbsp;
+        {% if account.expires_at %}
+          Gäller till: {{ account.expires_at.strftime("%Y-%m-%d") }}
+        {% else %}
+          Inget utgångsdatum
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap: .75rem; flex-wrap: wrap;">
+      {% if account.status.value == "active" %}
+        <span class="badge badge-active">Aktiv</span>
+      {% elif account.status.value == "inactive" %}
+        <span class="badge badge-inactive">Inaktiv</span>
+      {% elif account.status.value == "pending_deletion" %}
+        <span class="badge badge-pending">Inväntar radering</span>
+      {% else %}
+        <span class="badge" style="background:#eee;color:#666;">{{ account.status.value }}</span>
+      {% endif %}
+
+      <div class="account-actions">
+        {% if account.status.value == "inactive" %}
+          <a
+            href="/portal/pay/{{ account.id }}"
+            class="btn"
+            style="font-size:.875rem; padding:.4rem .8rem;"
+          >
+            Förnya nu – 149 kr
+          </a>
+        {% endif %}
+        <a
+          href="/portal/account/{{ account.id }}/password"
+          class="btn btn-secondary"
+          style="font-size:.875rem; padding:.4rem .8rem;"
+        >
+          Byt lösenord
+        </a>
+        <a
+          href="/portal/account/{{ account.id }}/address"
+          class="btn btn-secondary"
+          style="font-size:.875rem; padding:.4rem .8rem;"
+        >
+          Byt adress
+        </a>
+        <a
+          href="/portal/account/{{ account.id }}/settings"
+          class="btn btn-secondary"
+          style="font-size:.875rem; padding:.4rem .8rem;"
+        >
+          Inställningar
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card" style="text-align:center; padding: 3rem 1.5rem;">
+  <p style="color:#666; margin-bottom:1rem;">Du har inga e-postkonton ännu.</p>
+  <a href="mailto:kramnet@broadviewab.se" class="btn">Kontakta oss för att komma igång</a>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top: 1.5rem;">
+  <h2 style="font-size: 1rem; margin-bottom: .75rem; color: #666;">Kontoinformation</h2>
+  <table style="width:100%; font-size:.9rem; border-collapse:collapse;">
+    <tr>
+      <td style="padding:.4rem 0; color:#666; width:160px;">Namn</td>
+      <td>{{ customer.name }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.4rem 0; color:#666;">E-post</td>
+      <td>{{ customer.contact_email }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.4rem 0; color:#666;">Swish</td>
+      <td>{{ customer.swish_phone }}</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

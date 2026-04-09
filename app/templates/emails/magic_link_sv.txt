@@ -1,0 +1,14 @@
+Hej {{ customer.name }},
+
+Du har begärt en inloggningslänk till Kramnet. Klicka på länken nedan för att logga in:
+
+{{ magic_link }}
+
+Länken är giltig i 15 minuter och kan bara användas en gång.
+
+Om du inte begärde denna länk kan du bortse från detta mejl.
+
+---
+Hälsningar,
+Kramnet-teamet
+kramnet@broadviewab.se

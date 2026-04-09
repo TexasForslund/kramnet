@@ -1,0 +1,17 @@
+Hej {{ customer.name }},
+
+Välkommen till Kramnet! Ditt e-postkonto är nu aktiverat.
+
+  E-postadress: {{ email_account.address }}
+  Paket:        {{ "Familj" if email_account.package_type == "family" else "Enskild" }}
+  Gäller till:  {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+
+Du kan logga in på ditt konto via:
+https://kramnet.se
+
+Har du frågor är du alltid välkommen att höra av dig.
+
+---
+Hälsningar,
+Kramnet-teamet
+kramnet@broadviewab.se

@@ -1,0 +1,32 @@
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# Database
+sqlalchemy==2.0.36
+alembic==1.14.0
+asyncpg==0.30.0
+
+# Validation & settings
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# Templating
+jinja2==3.1.4
+
+# Scheduling
+apscheduler==3.10.4
+
+# HTTP client (for Swish & Hostek API calls)
+httpx==0.28.1
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.20
+
+# Email (Postmark)
+postmarker==1.0
+
+# Utilities
+python-dotenv==1.0.1

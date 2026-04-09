@@ -1,0 +1,14 @@
+Hi {{ customer.name }},
+
+Good news! Your Kramnet account has been reactivated.
+
+  Email address: {{ email_account.address }}
+  Valid until:   {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+
+You can access your account at:
+https://kramnet.se
+
+---
+Best regards,
+The Kramnet Team
+kramnet@broadviewab.se

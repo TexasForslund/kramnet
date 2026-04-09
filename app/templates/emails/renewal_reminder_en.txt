@@ -1,0 +1,19 @@
+Hi {{ customer.name }},
+
+Your Kramnet account is expiring soon. Renew now to keep your email address.
+
+  Email address: {{ email_account.address }}
+  Expires:       {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+  Days remaining: {{ days_left }}
+
+Renew your account here:
+https://kramnet.se/renew
+
+{% if days_left == 7 %}
+NOTE: If the account is not renewed within {{ days_left }} days it will be automatically deactivated.
+{% endif %}
+
+---
+Best regards,
+The Kramnet Team
+kramnet@broadviewab.se

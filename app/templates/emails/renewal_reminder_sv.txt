@@ -1,0 +1,19 @@
+Hej {{ customer.name }},
+
+Ditt Kramnet-konto går snart ut. Förnya för att behålla din e-postadress.
+
+  E-postadress: {{ email_account.address }}
+  Går ut:       {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+  Dagar kvar:   {{ days_left }}
+
+Förnya ditt konto här:
+https://kramnet.se/renew
+
+{% if days_left == 7 %}
+OBS: Om kontot inte förnyas inom {{ days_left }} dagar inaktiveras det automatiskt.
+{% endif %}
+
+---
+Hälsningar,
+Kramnet-teamet
+kramnet@broadviewab.se

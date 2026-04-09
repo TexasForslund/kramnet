@@ -1,0 +1,14 @@
+Hej {{ customer.name }},
+
+Goda nyheter! Ditt Kramnet-konto är nu återaktiverat.
+
+  E-postadress: {{ email_account.address }}
+  Gäller till:  {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+
+Du kan logga in på ditt konto via:
+https://kramnet.se
+
+---
+Hälsningar,
+Kramnet-teamet
+kramnet@broadviewab.se

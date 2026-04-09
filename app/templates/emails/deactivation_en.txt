@@ -1,0 +1,15 @@
+Hi {{ customer.name }},
+
+Your Kramnet account has been deactivated because the subscription has expired.
+
+  Email address:  {{ email_account.address }}
+  Deactivated:    {{ email_account.deactivated_at.strftime("%Y-%m-%d") }}
+
+Your email address is reserved for 30 days. Renew before then to reactivate your account without losing the address:
+
+https://kramnet.se/renew
+
+---
+Best regards,
+The Kramnet Team
+kramnet@broadviewab.se

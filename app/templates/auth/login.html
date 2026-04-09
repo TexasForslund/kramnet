@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Logga in – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 420px; margin: 4rem auto;">
+  <div class="card">
+    <h1 style="font-size: 1.4rem; margin-bottom: .25rem;">Logga in</h1>
+    <p style="color: #666; margin-bottom: 1.5rem; font-size: .95rem;">
+      Ange din e-postadress så skickar vi en inloggningslänk.
+    </p>
+
+    {% if error == "invalid_token" %}
+    <div class="error" style="margin-bottom: 1rem;">
+      Länken är ogiltig eller har gått ut. Begär en ny nedan.
+    </div>
+    {% endif %}
+
+    <form
+      id="login-form"
+      hx-post="/auth/request-link"
+      hx-swap="outerHTML"
+      hx-target="#login-form"
+    >
+      <label for="email" style="display:block; font-weight:600; margin-bottom:.4rem;">
+        E-postadress
+      </label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="du@exempel.se"
+        required
+        autofocus
+      >
+      <button type="submit" class="btn" style="width:100%;">
+        Skicka inloggningslänk
+      </button>
+    </form>
+  </div>
+
+  <p style="text-align:center; color:#888; font-size:.875rem; margin-top:1rem;">
+    Har du inget konto? <a href="mailto:kramnet@broadviewab.se">Kontakta oss</a>
+  </p>
+</div>
+{% endblock %}

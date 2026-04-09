@@ -1,0 +1,17 @@
+Hi {{ customer.name }},
+
+Welcome to Kramnet! Your email account is now active.
+
+  Email address: {{ email_account.address }}
+  Package:       {{ "Family" if email_account.package_type == "family" else "Individual" }}
+  Valid until:   {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+
+You can access your account at:
+https://kramnet.se
+
+Feel free to reach out if you have any questions.
+
+---
+Best regards,
+The Kramnet Team
+kramnet@broadviewab.se

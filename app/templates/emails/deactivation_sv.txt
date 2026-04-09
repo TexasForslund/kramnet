@@ -1,0 +1,15 @@
+Hej {{ customer.name }},
+
+Ditt Kramnet-konto har inaktiverats eftersom prenumerationen löpt ut.
+
+  E-postadress: {{ email_account.address }}
+  Inaktiverat:  {{ email_account.deactivated_at.strftime("%Y-%m-%d") }}
+
+Din e-postadress är reserverad i 30 dagar. Förnya innan dess för att återaktivera kontot utan att förlora adressen:
+
+https://kramnet.se/renew
+
+---
+Hälsningar,
+Kramnet-teamet
+kramnet@broadviewab.se
