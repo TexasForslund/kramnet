@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Raderingar – Kramnet Admin{% endblock %}
+
+{% block content %}
+<h1>Raderingsförfrågningar</h1>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th>E-postkonto</th>
+        <th>Kund</th>
+        <th>Begärd</th>
+        <th>Schemalagd radering</th>
+        <th>IP</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dr in deletion_requests %}
+      <tr id="dr-row-{{ dr.id }}">
+        <td>
+          <strong>{{ dr.email_account.address }}</strong>
+        </td>
+        <td>
+          <a href="/admin/customers/{{ dr.email_account.customer_id }}">
+            {{ dr.email_account.customer.name }}
+          </a>
+          <div style="font-size:.8rem; color:#888;">{{ dr.email_account.customer.contact_email }}</div>
+        </td>
+        <td style="white-space:nowrap; font-size:.875rem; color:#555;">
+          {{ dr.requested_at.strftime("%Y-%m-%d %H:%M") }}
+        </td>
+        <td style="white-space:nowrap; font-size:.875rem; color:#c0392b; font-weight:600;">
+          {% if dr.scheduled_delete_at %}
+            {{ dr.scheduled_delete_at.strftime("%Y-%m-%d") }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td style="font-size:.8rem; color:#aaa; font-family:monospace;">
+          {{ dr.requested_by_ip or "—" }}
+        </td>
+        <td>
+          <button
+            class="btn-sm btn-ok"
+            hx-post="/admin/deletion-requests/{{ dr.id }}/approve"
+            hx-target="#dr-row-{{ dr.id }}"
+            hx-swap="outerHTML"
+            hx-confirm="Godkänn radering av {{ dr.email_account.address }}? Kontot inaktiveras omgående."
+          >
+            Godkänn
+          </button>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align:center; color:#888; padding:2.5rem;">
+          Inga väntande raderingsförfrågningar.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

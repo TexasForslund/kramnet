@@ -45,7 +45,7 @@ app.include_router(portal_router.router, tags=["portal"])
 app.include_router(customers.router, prefix="/api/customers", tags=["customers"])
 app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
 app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
-app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(admin.router, tags=["admin"])
 
 
 def get_email_service() -> EmailService:

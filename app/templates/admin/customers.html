@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Kunder – Kramnet Admin{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.25rem; flex-wrap:wrap; gap:.75rem;">
+  <h1 style="margin:0;">Kunder</h1>
+  <span style="color:#888; font-size:.875rem;">{{ customers|length }} träff{{ "ar" if customers|length != 1 else "" }}</span>
+</div>
+
+<div class="card" style="padding:.9rem 1.25rem;">
+  <form method="get" action="/admin/customers" style="display:flex; gap:.75rem; flex-wrap:wrap; align-items:flex-end;">
+    <div>
+      <label style="display:block; font-size:.8rem; font-weight:600; margin-bottom:.3rem; color:#666;">Sök</label>
+      <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Namn eller e-post…"
+        style="width:260px;"
+        hx-get="/admin/customers"
+        hx-trigger="keyup changed delay:400ms"
+        hx-target="body"
+        hx-push-url="true"
+        hx-include="[name='status']"
+      >
+    </div>
+    <div>
+      <label style="display:block; font-size:.8rem; font-weight:600; margin-bottom:.3rem; color:#666;">Status</label>
+      <select name="status" onchange="this.form.submit()">
+        <option value="all"     {% if status_filter == "all"      %}selected{% endif %}>Alla</option>
+        <option value="active"  {% if status_filter == "active"   %}selected{% endif %}>Aktiva</option>
+        <option value="inactive"{% if status_filter == "inactive" %}selected{% endif %}>Inaktiva</option>
+      </select>
+    </div>
+    <button type="submit" class="btn" style="font-size:.875rem;">Sök</button>
+  </form>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th>Namn</th>
+        <th>E-post</th>
+        <th>Konton</th>
+        <th>Aktiva</th>
+        <th>Registrerad</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for customer in customers %}
+      <tr style="cursor:pointer;" onclick="location.href='/admin/customers/{{ customer.id }}'">
+        <td>
+          <a class="row-link" href="/admin/customers/{{ customer.id }}">
+            {{ customer.name }}
+          </a>
+        </td>
+        <td style="color:#555; font-size:.875rem;">{{ customer.contact_email }}</td>
+        <td style="text-align:center;">{{ customer.email_accounts|length }}</td>
+        <td style="text-align:center;">
+          {% set active_count = customer.email_accounts | selectattr("status.value", "equalto", "active") | list | length %}
+          {% if active_count > 0 %}
+            <span class="badge badge-active">{{ active_count }}</span>
+          {% else %}
+            <span style="color:#bbb;">0</span>
+          {% endif %}
+        </td>
+        <td style="color:#888; font-size:.82rem; white-space:nowrap;">
+          {{ customer.created_at.strftime("%Y-%m-%d") }}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" style="text-align:center; color:#888; padding:2rem;">
+          Inga kunder hittades.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

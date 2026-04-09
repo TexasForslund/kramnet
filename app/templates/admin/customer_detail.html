@@ -1,0 +1,168 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ customer.name }} – Kramnet Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem;">
+  <a href="/admin/customers" style="font-size:.875rem; color:#666;">&larr; Tillbaka till kundlistan</a>
+</div>
+
+<h1>{{ customer.name }}</h1>
+
+<!-- Kundinformation -->
+<div class="card">
+  <h2>Kundinformation</h2>
+  <table style="width:auto; font-size:.9rem;">
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888; white-space:nowrap;">Namn</td>
+      <td>{{ customer.name }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888;">Kontakt-e-post</td>
+      <td>{{ customer.contact_email }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888;">Swish</td>
+      <td>{{ customer.swish_phone }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888;">Språk</td>
+      <td>{{ "Svenska" if customer.language == "sv" else "English" }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888;">Kund sedan</td>
+      <td>{{ customer.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+    </tr>
+    <tr>
+      <td style="padding:.35rem 2rem .35rem 0; color:#888;">ID</td>
+      <td style="font-family:monospace; font-size:.8rem; color:#aaa;">{{ customer.id }}</td>
+    </tr>
+  </table>
+</div>
+
+<!-- E-postkonton -->
+{% for account in customer.email_accounts %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem;">
+    <div>
+      <div style="font-size:1.05rem; font-weight:600;">{{ account.address }}</div>
+      <div style="font-size:.82rem; color:#888; margin-top:.2rem;">
+        Paket: {{ "Familj" if account.package_type == "family" else "Enskild" }}
+        &nbsp;·&nbsp;
+        Skapad: {{ account.created_at.strftime("%Y-%m-%d") }}
+      </div>
+    </div>
+    {{ status_fragment(account) | safe }}
+  </div>
+
+  <!-- Förfallodatum + förläng -->
+  <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; padding:.75rem 0; border-top:1px solid #f0f0f0; border-bottom:1px solid #f0f0f0; margin-bottom:.75rem;">
+    <div>
+      <span style="font-size:.8rem; color:#888;">Gäller till:</span>
+      <strong id="expires-{{ account.id }}" style="margin-left:.4rem;">
+        {% if account.expires_at %}{{ account.expires_at.strftime("%Y-%m-%d") }}{% else %}—{% endif %}
+      </strong>
+    </div>
+    <form
+      style="display:flex; gap:.4rem; align-items:center;"
+      hx-post="/admin/account/{{ account.id }}/extend"
+      hx-target="#expires-{{ account.id }}"
+      hx-swap="outerHTML"
+    >
+      <input
+        type="number"
+        name="days"
+        min="1"
+        max="3650"
+        value="365"
+        style="width:70px; font-size:.85rem; padding:.3rem .5rem;"
+      >
+      <span style="font-size:.8rem; color:#888;">dagar</span>
+      <button type="submit" class="btn-sm">Förläng</button>
+    </form>
+  </div>
+
+  <!-- Betalningshistorik -->
+  {% if account.payments %}
+  <h2 style="font-size:.9rem; color:#888; margin-bottom:.5rem;">Betalningar</h2>
+  <table style="font-size:.85rem;">
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Typ</th>
+        <th>Belopp</th>
+        <th>Status</th>
+        <th>Swish-ref</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in account.payments | sort(attribute="created_at", reverse=True) %}
+      <tr>
+        <td style="white-space:nowrap; color:#666;">
+          {{ p.created_at.strftime("%Y-%m-%d") }}
+        </td>
+        <td>{{ p.payment_type.value }}</td>
+        <td style="font-weight:600;">
+          {{ "%.2f"|format(p.amount_ore / 100) }} kr
+        </td>
+        <td>
+          {% if p.status.value == "paid" %}
+            <span class="badge badge-active">Betald</span>
+          {% elif p.status.value == "pending" %}
+            <span class="badge badge-pending">Väntande</span>
+          {% elif p.status.value == "failed" %}
+            <span class="badge badge-inactive">Misslyckad</span>
+          {% else %}
+            <span class="badge" style="background:#eee;color:#666;">{{ p.status.value }}</span>
+          {% endif %}
+        </td>
+        <td style="font-family:monospace; font-size:.78rem; color:#aaa;">
+          {{ p.swish_reference or "—" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="font-size:.875rem; color:#aaa;">Inga betalningar registrerade.</p>
+  {% endif %}
+</div>
+{% else %}
+<div class="card" style="text-align:center; padding:2rem; color:#888;">
+  Kunden har inga e-postkonton.
+</div>
+{% endfor %}
+
+<!-- Audit log -->
+<div class="card">
+  <h2>Aktivitetslogg <span style="font-weight:400; color:#aaa; font-size:.85rem;">(senaste 50)</span></h2>
+  {% if audit_logs %}
+  <table style="font-size:.85rem;">
+    <thead>
+      <tr>
+        <th>Tidpunkt</th>
+        <th>Händelse</th>
+        <th>Utförd av</th>
+        <th>Metadata</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in audit_logs %}
+      <tr>
+        <td style="white-space:nowrap; color:#888; font-size:.8rem;">
+          {{ log.created_at.strftime("%Y-%m-%d %H:%M:%S") }}
+        </td>
+        <td><code style="font-size:.8rem;">{{ log.event_type }}</code></td>
+        <td style="color:#666; font-size:.82rem;">{{ log.performed_by or "—" }}</td>
+        <td style="font-family:monospace; font-size:.75rem; color:#aaa; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          {% if log.metadata_ %}{{ log.metadata_ }}{% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#888; font-size:.875rem;">Ingen aktivitet loggad.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Kramnet Admin{% endblock %}</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f0f0f0; color: #222; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Top bar */
+    .topbar {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar .brand { font-weight: 700; font-size: 1.1rem; letter-spacing: .03em; color: #a0c4ff; }
+    .topbar form { margin: 0; }
+    .topbar button {
+      background: transparent;
+      border: 1px solid #555;
+      color: #ccc;
+      padding: .3rem .8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: .875rem;
+    }
+    .topbar button:hover { border-color: #aaa; color: #fff; }
+
+    /* Layout */
+    .shell { display: flex; flex: 1; }
+
+    /* Sidebar */
+    aside {
+      width: 200px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 1.5rem 0;
+      flex-shrink: 0;
+    }
+    aside a {
+      display: block;
+      padding: .55rem 1.25rem;
+      color: #333;
+      text-decoration: none;
+      font-size: .9rem;
+    }
+    aside a:hover { background: #f0f4ff; color: #0057b8; }
+    aside a.active { background: #e8f0fe; color: #0057b8; font-weight: 600; border-left: 3px solid #0057b8; }
+    aside .nav-section {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #999;
+      padding: 1rem 1.25rem .3rem;
+    }
+
+    /* Main content */
+    main { flex: 1; padding: 1.75rem 2rem; overflow-y: auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 1.1rem; margin-bottom: .75rem; }
+
+    /* Cards */
+    .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
+
+    /* Stat cards */
+    .stats { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .stat-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      flex: 1;
+      min-width: 140px;
+    }
+    .stat-card .label { font-size: .8rem; color: #888; margin-bottom: .3rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #1a1a2e; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { text-align: left; padding: .6rem .75rem; background: #f7f7f7; border-bottom: 2px solid #ddd; font-weight: 600; white-space: nowrap; }
+    td { padding: .55rem .75rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    a.row-link { color: inherit; text-decoration: none; display: block; }
+    a.row-link:hover { color: #0057b8; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .78rem; font-weight: 600; }
+    .badge-active   { background: #d4edda; color: #155724; }
+    .badge-inactive { background: #f8d7da; color: #721c24; }
+    .badge-pending  { background: #fff3cd; color: #856404; }
+
+    /* Buttons */
+    .btn { display: inline-block; padding: .45rem .9rem; border-radius: 5px; border: 1px solid #0057b8; background: #0057b8; color: #fff; cursor: pointer; font-size: .875rem; text-decoration: none; }
+    .btn:hover { background: #004099; }
+    .btn-sm { display: inline-block; padding: .25rem .6rem; border-radius: 4px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; font-size: .8rem; text-decoration: none; }
+    .btn-sm:hover { background: #f0f0f0; }
+    .btn-ok { border-color: #27ae60; color: #27ae60; }
+    .btn-ok:hover { background: #eafaf1; }
+    .btn-warn { border-color: #c0392b; color: #c0392b; }
+    .btn-warn:hover { background: #fdf0f0; }
+    .btn-danger { border-color: #c0392b; background: #c0392b; color: #fff; }
+    .btn-danger:hover { background: #a93226; }
+
+    /* Forms */
+    input[type="text"], input[type="password"], input[type="number"], input[type="email"], select {
+      padding: .45rem .65rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: .9rem;
+    }
+    input:focus, select:focus { outline: 2px solid #0057b8; border-color: transparent; }
+
+    .notice { padding: .6rem .9rem; background: #eef4ff; border-left: 3px solid #0057b8; border-radius: 4px; font-size: .875rem; }
+    .error  { padding: .6rem .9rem; background: #fdf0f0; border-left: 3px solid #c0392b; border-radius: 4px; color: #c0392b; font-size: .875rem; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">Kramnet Admin</span>
+    <form method="post" action="/admin/logout">
+      <button type="submit">Logga ut</button>
+    </form>
+  </div>
+
+  <div class="shell">
+    <aside>
+      <div class="nav-section">Navigering</div>
+      <a href="/admin/dashboard" {% if request.url.path == "/admin/dashboard" %}class="active"{% endif %}>
+        Översikt
+      </a>
+      <a href="/admin/customers" {% if "/admin/customers" in request.url.path %}class="active"{% endif %}>
+        Kunder
+      </a>
+      <a href="/admin/deletion-requests" {% if "/admin/deletion-requests" in request.url.path %}class="active"{% endif %}>
+        Raderingar
+      </a>
+    </aside>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

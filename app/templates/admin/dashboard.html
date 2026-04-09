@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Översikt – Kramnet Admin{% endblock %}
+
+{% block content %}
+<h1>Översikt</h1>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="label">Kunder totalt</div>
+    <div class="value">{{ stats.total_customers }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Aktiva konton</div>
+    <div class="value" style="color:#155724;">{{ stats.active_accounts }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Inaktiva konton</div>
+    <div class="value" style="color:#721c24;">{{ stats.inactive_accounts }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Inväntar radering</div>
+    <div class="value" style="color:#856404;">{{ stats.pending_deletion }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Betalningar (30 dagar)</div>
+    <div class="value">{{ stats.payments_count }}</div>
+    <div style="font-size:.8rem; color:#666; margin-top:.2rem;">
+      {{ "%.2f"|format(stats.payments_sum_kr) }} kr
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Senaste händelserna</h2>
+  {% if recent_audit %}
+  <table>
+    <thead>
+      <tr>
+        <th>Tidpunkt</th>
+        <th>Händelse</th>
+        <th>Utförd av</th>
+        <th>Konto-ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in recent_audit %}
+      <tr>
+        <td style="white-space:nowrap; color:#666; font-size:.82rem;">
+          {{ log.created_at.strftime("%Y-%m-%d %H:%M") }}
+        </td>
+        <td><code style="font-size:.82rem;">{{ log.event_type }}</code></td>
+        <td style="color:#666; font-size:.875rem;">{{ log.performed_by or "—" }}</td>
+        <td style="font-size:.78rem; color:#aaa; font-family:monospace;">
+          {% if log.email_account_id %}
+            {{ str(log.email_account_id)[:8] }}…
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#888; font-size:.9rem;">Inga händelser ännu.</p>
+  {% endif %}
+</div>
+{% endblock %}
