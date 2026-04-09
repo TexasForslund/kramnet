@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Tack för din registrering – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 3rem auto; text-align:center;">
+  <div style="font-size:3rem; margin-bottom:1rem;">&#10003;</div>
+
+  <h1 style="font-size:1.5rem; margin-bottom:.5rem;">Tack, {{ customer.name }}!</h1>
+  <p style="color:#555; margin-bottom:2rem;">
+    Din ansökan om <strong>{{ account.address }}</strong> är mottagen och granskas av oss.
+  </p>
+
+  <div class="card" style="text-align:left;">
+    <h2 style="font-size:1rem;margin-bottom:1rem;color:#444;">Nästa steg</h2>
+    <ol style="padding-left:1.25rem;line-height:1.9;color:#333;font-size:.95rem;">
+      <li>Vi granskar din registrering (vanligtvis inom 24 timmar)</li>
+      <li>Du får ett mejl till <strong>{{ customer.contact_email }}</strong>
+          med betalningsinstruktioner via Swish</li>
+      <li>När betalningen (<strong>{{ amount_kr }} kr</strong>) är bekräftad
+          aktiveras ditt konto automatiskt</li>
+      <li>Du får en välkomstmejl med inloggningsinstruktioner</li>
+    </ol>
+  </div>
+
+  <div class="card" style="margin-top:1rem; text-align:left; background:#f8f9ff;">
+    <div style="font-size:.875rem; color:#555; line-height:1.7;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
+        <span style="color:#888;">Önskad adress</span>
+        <strong>{{ account.address }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
+        <span style="color:#888;">Belopp</span>
+        <strong>{{ amount_kr }} kr</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:#888;">Status</span>
+        <span class="badge badge-pending">Väntar på betalning</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:2rem;font-size:.9rem;color:#888;">
+    Frågor? Skriv till
+    <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
+  </p>
+</div>
+{% endblock %}

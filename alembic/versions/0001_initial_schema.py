@@ -18,25 +18,39 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # --- Enum types (CREATE TYPE ... IF NOT EXISTS) ---
-    op.execute(sa.text(
-        "CREATE TYPE IF NOT EXISTS packagetype AS ENUM ('single', 'family')"
-    ))
-    op.execute(sa.text(
-        "CREATE TYPE IF NOT EXISTS accountstatus "
-        "AS ENUM ('active', 'inactive', 'pending_deletion', 'deleted')"
-    ))
-    op.execute(sa.text(
-        "CREATE TYPE IF NOT EXISTS paymenttype AS ENUM ('new', 'renewal')"
-    ))
-    op.execute(sa.text(
-        "CREATE TYPE IF NOT EXISTS paymentstatus "
-        "AS ENUM ('pending', 'paid', 'failed', 'refunded')"
-    ))
-    op.execute(sa.text(
-        "CREATE TYPE IF NOT EXISTS deletionstatus "
-        "AS ENUM ('pending', 'approved', 'completed')"
-    ))
+    # --- Enum types ---
+    # PostgreSQL has no CREATE TYPE IF NOT EXISTS — use exception guard instead.
+    op.execute(sa.text("""
+        DO $$ BEGIN
+            CREATE TYPE packagetype AS ENUM ('single', 'family');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """))
+    op.execute(sa.text("""
+        DO $$ BEGIN
+            CREATE TYPE accountstatus
+                AS ENUM ('active', 'inactive', 'pending_deletion', 'deleted');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """))
+    op.execute(sa.text("""
+        DO $$ BEGIN
+            CREATE TYPE paymenttype AS ENUM ('new', 'renewal');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """))
+    op.execute(sa.text("""
+        DO $$ BEGIN
+            CREATE TYPE paymentstatus AS ENUM ('pending', 'paid', 'failed', 'refunded');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """))
+    op.execute(sa.text("""
+        DO $$ BEGIN
+            CREATE TYPE deletionstatus AS ENUM ('pending', 'approved', 'completed');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """))
 
     # --- customers ---
     op.create_table(

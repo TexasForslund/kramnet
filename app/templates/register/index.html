@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Skaffa Kramnet-adress{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 0 auto;">
+  <h1 style="font-size:1.6rem; margin-bottom:.4rem;">Skaffa din @kramnet.se-adress</h1>
+  <p style="color:#666; margin-bottom:1.75rem;">
+    En personlig e-postadress på kramnet.se. Välj prefix, betala via Swish.
+  </p>
+
+  {% if error %}
+  <div class="error" style="margin-bottom:1rem;">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="/register">
+
+    {{/* Namn */}}
+    <div style="margin-bottom:1rem;">
+      <label for="name" style="display:block;font-weight:600;margin-bottom:.35rem;">
+        Ditt namn
+      </label>
+      <input type="text" id="name" name="name"
+             value="{{ form.name if form else '' }}"
+             placeholder="Anna Andersson" required>
+    </div>
+
+    {{/* E-post (kontakt) */}}
+    <div style="margin-bottom:1rem;">
+      <label for="contact_email" style="display:block;font-weight:600;margin-bottom:.35rem;">
+        Din nuvarande e-postadress
+        <span style="font-weight:400;color:#888;">(för kvitto och inloggning)</span>
+      </label>
+      <input type="email" id="contact_email" name="contact_email"
+             value="{{ form.contact_email if form else '' }}"
+             placeholder="anna@example.com" required>
+    </div>
+
+    {{/* Önskad adress */}}
+    <div style="margin-bottom:.5rem;">
+      <label for="desired_prefix" style="display:block;font-weight:600;margin-bottom:.35rem;">
+        Önskad adress
+      </label>
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <input type="text" id="desired_prefix" name="desired_prefix"
+               value="{{ form.desired_prefix if form else '' }}"
+               placeholder="anna"
+               pattern="[a-z0-9.\-]+"
+               style="margin-bottom:0;flex:1;"
+               hx-get="/api/check-address"
+               hx-target="#address-status"
+               hx-trigger="keyup changed delay:400ms"
+               hx-include="[name='desired_prefix']"
+               hx-vals='js:{prefix: document.getElementById("desired_prefix").value}'
+               required>
+        <span style="white-space:nowrap;color:#555;">@kramnet.se</span>
+      </div>
+    </div>
+    <div id="address-status" style="font-size:.85rem;min-height:1.4rem;margin-bottom:.75rem;"></div>
+    <p style="font-size:.825rem;color:#888;margin-bottom:1.25rem;">
+      Endast <code>a–z</code>, <code>0–9</code>, <code>.</code> och <code>-</code> tillåtna.
+    </p>
+
+    {{/* Swish */}}
+    <div style="margin-bottom:1rem;">
+      <label for="swish_phone" style="display:block;font-weight:600;margin-bottom:.35rem;">
+        Mobilnummer för Swish
+      </label>
+      <input type="tel" id="swish_phone" name="swish_phone"
+             value="{{ form.swish_phone if form else '' }}"
+             placeholder="07XXXXXXXX" required>
+    </div>
+
+    {{/* Paket */}}
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-weight:600;margin-bottom:.6rem;">Välj paket</div>
+      <label style="display:block;border:1px solid #ddd;border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem;cursor:pointer;">
+        <input type="radio" name="package_type" value="single"
+               {% if not form or form.package_type == "single" %}checked{% endif %}
+               style="width:auto;margin:0 .5rem 0 0;">
+        <strong>Enskild</strong> — 1 adress &nbsp;
+        <span style="color:#0057b8;font-weight:600;">149 kr/år</span>
+      </label>
+      <label style="display:block;border:1px solid #ddd;border-radius:6px;padding:.75rem 1rem;cursor:pointer;">
+        <input type="radio" name="package_type" value="family"
+               {% if form and form.package_type == "family" %}checked{% endif %}
+               style="width:auto;margin:0 .5rem 0 0;">
+        <strong>Familj</strong> — upp till 5 adresser &nbsp;
+        <span style="color:#0057b8;font-weight:600;">249 kr/år</span>
+      </label>
+    </div>
+
+    {{/* Språk */}}
+    <div style="margin-bottom:1.75rem;">
+      <label style="display:block;font-weight:600;margin-bottom:.5rem;">Kommunikationsspråk</label>
+      <label style="display:inline-flex;align-items:center;gap:.4rem;margin-right:1.5rem;cursor:pointer;">
+        <input type="radio" name="language" value="sv"
+               {% if not form or form.language != "en" %}checked{% endif %}
+               style="width:auto;margin:0;">
+        Svenska
+      </label>
+      <label style="display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;">
+        <input type="radio" name="language" value="en"
+               {% if form and form.language == "en" %}checked{% endif %}
+               style="width:auto;margin:0;">
+        English
+      </label>
+    </div>
+
+    <button type="submit" class="btn" style="width:100%;padding:.75rem;">
+      Registrera och fortsätt till betalning
+    </button>
+
+    <p style="font-size:.825rem;color:#888;text-align:center;margin-top:1rem;">
+      Har du frågor?
+      <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
+    </p>
+  </form>
+</div>
+
+{% block scripts %}
+<script>
+  // HTMX-svar för adressvalidering
+  document.body.addEventListener("htmx:afterRequest", function(evt) {
+    if (!evt.detail.elt.id === "desired_prefix") return;
+    try {
+      const data = JSON.parse(evt.detail.xhr.responseText);
+      const el = document.getElementById("address-status");
+      if (document.getElementById("desired_prefix").value.trim() === "") {
+        el.innerHTML = "";
+        return;
+      }
+      if (data.available) {
+        el.innerHTML = '<span style="color:#155724;">&#10003; Adressen är ledig</span>';
+      } else if (data.reason === "invalid") {
+        el.innerHTML = '<span style="color:#721c24;">Ogiltiga tecken i adressen</span>';
+      } else {
+        el.innerHTML = '<span style="color:#721c24;">&#10007; Adressen är tagen</span>';
+      }
+    } catch (e) {}
+  });
+</script>
+{% endblock %}
+{% endblock %}

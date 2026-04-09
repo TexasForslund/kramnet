@@ -382,6 +382,58 @@ async def admin_deletion_requests(
     )
 
 
+# ─── payment confirm ─────────────────────────────────────────────────────────
+
+@router.post("/admin/payment/{payment_id}/confirm", response_class=HTMLResponse)
+async def admin_confirm_payment(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    result = await db.execute(
+        select(Payment)
+        .options(
+            selectinload(Payment.email_account).selectinload(EmailAccount.customer)
+        )
+        .where(Payment.id == payment_id)
+    )
+    payment = result.scalar_one_or_none()
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Betalningen hittades inte")
+
+    now = datetime.now(timezone.utc)
+    account = payment.email_account
+    customer = account.customer
+
+    payment.status = PaymentStatus.paid
+    payment.paid_at = now
+
+    account.status = AccountStatus.active
+    account.activated_at = now
+    account.expires_at = now + timedelta(days=365)
+
+    db.add(AuditLog(
+        customer_id=customer.id,
+        email_account_id=account.id,
+        event_type="account_activated",
+        metadata_={"payment_id": str(payment_id), "amount_ore": payment.amount_ore},
+        performed_by="admin",
+    ))
+
+    await _hostek.create_account(account.address, "temp-password-set-by-customer")
+    await db.flush()
+    await _email_service.send_welcome(customer, account, db)
+    await db.commit()
+
+    return HTMLResponse(
+        f'<span id="payment-status-{payment_id}" '
+        f'style="display:inline-flex;gap:.5rem;align-items:center;">'
+        f'<span class="badge badge-active">Betald &amp; aktiverad</span>'
+        f'<small style="color:#666;">{now.strftime("%Y-%m-%d %H:%M")}</small>'
+        f'</span>'
+    )
+
+
 @router.post(
     "/admin/deletion-requests/{request_id}/approve",
     response_class=HTMLResponse,
