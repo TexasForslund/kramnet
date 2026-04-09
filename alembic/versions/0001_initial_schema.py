@@ -18,27 +18,25 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # --- Enum types ---
-    packagetype = postgresql.ENUM("single", "family", name="packagetype", create_type=False)
-    accountstatus = postgresql.ENUM(
-        "active", "inactive", "pending_deletion", "deleted",
-        name="accountstatus", create_type=False,
-    )
-    paymenttype = postgresql.ENUM("new", "renewal", name="paymenttype", create_type=False)
-    paymentstatus = postgresql.ENUM(
-        "pending", "paid", "failed", "refunded",
-        name="paymentstatus", create_type=False,
-    )
-    deletionstatus = postgresql.ENUM(
-        "pending", "approved", "completed",
-        name="deletionstatus", create_type=False,
-    )
-
-    packagetype.create(op.get_bind(), checkfirst=True)
-    accountstatus.create(op.get_bind(), checkfirst=True)
-    paymenttype.create(op.get_bind(), checkfirst=True)
-    paymentstatus.create(op.get_bind(), checkfirst=True)
-    deletionstatus.create(op.get_bind(), checkfirst=True)
+    # --- Enum types (CREATE TYPE ... IF NOT EXISTS) ---
+    op.execute(sa.text(
+        "CREATE TYPE IF NOT EXISTS packagetype AS ENUM ('single', 'family')"
+    ))
+    op.execute(sa.text(
+        "CREATE TYPE IF NOT EXISTS accountstatus "
+        "AS ENUM ('active', 'inactive', 'pending_deletion', 'deleted')"
+    ))
+    op.execute(sa.text(
+        "CREATE TYPE IF NOT EXISTS paymenttype AS ENUM ('new', 'renewal')"
+    ))
+    op.execute(sa.text(
+        "CREATE TYPE IF NOT EXISTS paymentstatus "
+        "AS ENUM ('pending', 'paid', 'failed', 'refunded')"
+    ))
+    op.execute(sa.text(
+        "CREATE TYPE IF NOT EXISTS deletionstatus "
+        "AS ENUM ('pending', 'approved', 'completed')"
+    ))
 
     # --- customers ---
     op.create_table(
@@ -60,10 +58,17 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("customer_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("address", sa.String(255), nullable=False),
-        sa.Column("package_type", sa.Enum("single", "family", name="packagetype"), nullable=False),
+        sa.Column(
+            "package_type",
+            postgresql.ENUM("single", "family", name="packagetype", create_type=False),
+            nullable=False,
+        ),
         sa.Column(
             "status",
-            sa.Enum("active", "inactive", "pending_deletion", "deleted", name="accountstatus"),
+            postgresql.ENUM(
+                "active", "inactive", "pending_deletion", "deleted",
+                name="accountstatus", create_type=False,
+            ),
             nullable=False,
             server_default="inactive",
         ),
@@ -86,10 +91,17 @@ def upgrade() -> None:
         sa.Column("email_account_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("amount_ore", sa.Integer(), nullable=False),
         sa.Column("swish_reference", sa.String(100), nullable=True),
-        sa.Column("payment_type", sa.Enum("new", "renewal", name="paymenttype"), nullable=False),
+        sa.Column(
+            "payment_type",
+            postgresql.ENUM("new", "renewal", name="paymenttype", create_type=False),
+            nullable=False,
+        ),
         sa.Column(
             "status",
-            sa.Enum("pending", "paid", "failed", "refunded", name="paymentstatus"),
+            postgresql.ENUM(
+                "pending", "paid", "failed", "refunded",
+                name="paymentstatus", create_type=False,
+            ),
             nullable=False,
             server_default="pending",
         ),
@@ -143,7 +155,10 @@ def upgrade() -> None:
         sa.Column("email_account_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("pending", "approved", "completed", name="deletionstatus"),
+            postgresql.ENUM(
+                "pending", "approved", "completed",
+                name="deletionstatus", create_type=False,
+            ),
             nullable=False,
             server_default="pending",
         ),
@@ -166,8 +181,8 @@ def downgrade() -> None:
     op.drop_table("email_accounts")
     op.drop_table("customers")
 
-    op.execute("DROP TYPE IF EXISTS deletionstatus")
-    op.execute("DROP TYPE IF EXISTS paymentstatus")
-    op.execute("DROP TYPE IF EXISTS paymenttype")
-    op.execute("DROP TYPE IF EXISTS accountstatus")
-    op.execute("DROP TYPE IF EXISTS packagetype")
+    op.execute(sa.text("DROP TYPE IF EXISTS deletionstatus"))
+    op.execute(sa.text("DROP TYPE IF EXISTS paymentstatus"))
+    op.execute(sa.text("DROP TYPE IF EXISTS paymenttype"))
+    op.execute(sa.text("DROP TYPE IF EXISTS accountstatus"))
+    op.execute(sa.text("DROP TYPE IF EXISTS packagetype"))
