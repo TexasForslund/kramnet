@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Inställningar – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px;">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="/portal/dashboard" style="font-size:.9rem;">&larr; Tillbaka till mina konton</a>
+  </div>
+
+  <div class="card">
+    <h1 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Mina uppgifter</h1>
+
+    <form
+      id="settings-form"
+      hx-post="/portal/settings"
+      hx-target="#settings-form"
+      hx-swap="outerHTML"
+    >
+      <div style="margin-bottom: 1rem;">
+        <label for="name" style="display:block; font-weight:600; margin-bottom:.4rem;">Namn</label>
+        <input type="text" id="name" name="name" value="{{ customer.name }}" required>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label for="swish_phone" style="display:block; font-weight:600; margin-bottom:.4rem;">
+          Swish-nummer
+        </label>
+        <input
+          type="text"
+          id="swish_phone"
+          name="swish_phone"
+          value="{{ customer.swish_phone }}"
+          placeholder="07XXXXXXXX"
+          required
+        >
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display:block; font-weight:600; margin-bottom:.4rem;">Språk</label>
+        <label style="display:inline-flex; align-items:center; gap:.4rem; margin-right:1.5rem; cursor:pointer;">
+          <input
+            type="radio"
+            name="language"
+            value="sv"
+            {% if customer.language == "sv" %}checked{% endif %}
+          >
+          Svenska
+        </label>
+        <label style="display:inline-flex; align-items:center; gap:.4rem; cursor:pointer;">
+          <input
+            type="radio"
+            name="language"
+            value="en"
+            {% if customer.language == "en" %}checked{% endif %}
+          >
+          English
+        </label>
+      </div>
+
+      <button type="submit" class="btn">Spara ändringar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

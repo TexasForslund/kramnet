@@ -3,16 +3,17 @@
 {% block title %}Mina konton – Kramnet{% endblock %}
 
 {% block content %}
-<h1 style="font-size: 1.5rem; margin-bottom: 1.5rem;">
-  Hej, {{ customer.name }}
-</h1>
+<div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:.75rem;">
+  <h1 style="font-size: 1.5rem;">Hej, {{ customer.name }}</h1>
+  <a href="/portal/settings" class="btn btn-secondary" style="font-size:.875rem;">Mina uppgifter</a>
+</div>
 
 {% if email_accounts %}
 <div class="card">
   <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Dina e-postkonton</h2>
 
   {% for account in email_accounts %}
-  <div class="account-row">
+  <div class="account-row" id="account-row-{{ account.id }}">
     <div>
       <div style="font-weight: 600; font-size: 1rem;">{{ account.address }}</div>
       <div style="font-size: .875rem; color: #666; margin-top: .2rem;">
@@ -26,7 +27,7 @@
       </div>
     </div>
 
-    <div style="display:flex; align-items:center; gap: .75rem; flex-wrap: wrap;">
+    <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;">
       {% if account.status.value == "active" %}
         <span class="badge badge-active">Aktiv</span>
       {% elif account.status.value == "inactive" %}
@@ -47,27 +48,34 @@
             Förnya nu – 149 kr
           </a>
         {% endif %}
-        <a
-          href="/portal/account/{{ account.id }}/password"
-          class="btn btn-secondary"
-          style="font-size:.875rem; padding:.4rem .8rem;"
-        >
-          Byt lösenord
-        </a>
-        <a
-          href="/portal/account/{{ account.id }}/address"
-          class="btn btn-secondary"
-          style="font-size:.875rem; padding:.4rem .8rem;"
-        >
-          Byt adress
-        </a>
-        <a
-          href="/portal/account/{{ account.id }}/settings"
-          class="btn btn-secondary"
-          style="font-size:.875rem; padding:.4rem .8rem;"
-        >
-          Inställningar
-        </a>
+
+        {% if account.status.value not in ("pending_deletion", "deleted") %}
+          <a
+            href="/portal/account/{{ account.id }}/change-password"
+            class="btn btn-secondary"
+            style="font-size:.875rem; padding:.4rem .8rem;"
+          >
+            Byt lösenord
+          </a>
+          <a
+            href="/portal/account/{{ account.id }}/change-address"
+            class="btn btn-secondary"
+            style="font-size:.875rem; padding:.4rem .8rem;"
+          >
+            Byt adress
+          </a>
+          <button
+            id="delete-btn-{{ account.id }}"
+            class="btn btn-danger"
+            style="font-size:.875rem; padding:.4rem .8rem;"
+            hx-post="/portal/account/{{ account.id }}/request-deletion"
+            hx-target="#delete-btn-{{ account.id }}"
+            hx-swap="outerHTML"
+            hx-confirm="Är du säker på att du vill begära radering av {{ account.address }}? Kontot raderas efter 30 dagar."
+          >
+            Begär radering
+          </button>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -82,7 +90,10 @@
 {% endif %}
 
 <div class="card" style="margin-top: 1.5rem;">
-  <h2 style="font-size: 1rem; margin-bottom: .75rem; color: #666;">Kontoinformation</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem;">
+    <h2 style="font-size: 1rem; color: #666;">Kontoinformation</h2>
+    <a href="/portal/settings" style="font-size:.875rem;">Redigera</a>
+  </div>
   <table style="width:100%; font-size:.9rem; border-collapse:collapse;">
     <tr>
       <td style="padding:.4rem 0; color:#666; width:160px;">Namn</td>

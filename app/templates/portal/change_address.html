@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Byt adress – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px;">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="/portal/dashboard" style="font-size:.9rem;">&larr; Tillbaka till mina konton</a>
+  </div>
+
+  <div class="card">
+    <h1 style="font-size: 1.3rem; margin-bottom: .4rem;">Byt e-postadress</h1>
+    <p style="color:#666; margin-bottom:1.5rem; font-size:.9rem;">
+      Nuvarande adress: <strong>{{ account.address }}</strong>
+    </p>
+
+    <form
+      id="addr-form"
+      hx-post="/portal/account/{{ account.id }}/change-address"
+      hx-target="#addr-form"
+      hx-swap="outerHTML"
+    >
+      <div style="margin-bottom: .5rem;">
+        <label for="new_prefix" style="display:block; font-weight:600; margin-bottom:.4rem;">
+          Nytt prefix
+        </label>
+        <div style="display:flex; align-items:center; gap:.5rem;">
+          <input
+            type="text"
+            id="new_prefix"
+            name="new_prefix"
+            placeholder="dittnamn"
+            pattern="[a-z0-9.\-]+"
+            required
+            style="margin-bottom:0; flex:1;"
+          >
+          <span style="font-size:1rem; color:#555; white-space:nowrap;">@kramnet.se</span>
+        </div>
+      </div>
+
+      <p style="font-size:.825rem; color:#888; margin-bottom:1.5rem;">
+        Endast <code>a–z</code>, <code>0–9</code>, <code>.</code> och <code>-</code> är tillåtna.
+      </p>
+
+      {% if error %}
+      <div class="error" style="margin-bottom:1rem;">{{ error }}</div>
+      {% endif %}
+
+      <button type="submit" class="btn">Byt adress</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
