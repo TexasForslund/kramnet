@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     swish_merchant_id: str
     swish_cert_path: str
     swish_key_path: str
+    swish_payee_number: str = "0700000000"  # Swish-nummer kunder betalar till
 
     # Hostek
     hostek_api_url: str

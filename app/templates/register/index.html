@@ -15,7 +15,6 @@
 
   <form method="post" action="/register">
 
-    {{/* Namn */}}
     <div style="margin-bottom:1rem;">
       <label for="name" style="display:block;font-weight:600;margin-bottom:.35rem;">
         Ditt namn
@@ -25,7 +24,6 @@
              placeholder="Anna Andersson" required>
     </div>
 
-    {{/* E-post (kontakt) */}}
     <div style="margin-bottom:1rem;">
       <label for="contact_email" style="display:block;font-weight:600;margin-bottom:.35rem;">
         Din nuvarande e-postadress
@@ -36,7 +34,6 @@
              placeholder="anna@example.com" required>
     </div>
 
-    {{/* Önskad adress */}}
     <div style="margin-bottom:.5rem;">
       <label for="desired_prefix" style="display:block;font-weight:600;margin-bottom:.35rem;">
         Önskad adress
@@ -47,21 +44,19 @@
                placeholder="anna"
                pattern="[a-z0-9.\-]+"
                style="margin-bottom:0;flex:1;"
-               hx-get="/api/check-address"
+               hx-get="/api/check-address-fragment"
                hx-target="#address-status"
                hx-trigger="keyup changed delay:400ms"
-               hx-include="[name='desired_prefix']"
-               hx-vals='js:{prefix: document.getElementById("desired_prefix").value}'
+               hx-include="#desired_prefix"
                required>
         <span style="white-space:nowrap;color:#555;">@kramnet.se</span>
       </div>
     </div>
     <div id="address-status" style="font-size:.85rem;min-height:1.4rem;margin-bottom:.75rem;"></div>
     <p style="font-size:.825rem;color:#888;margin-bottom:1.25rem;">
-      Endast <code>a–z</code>, <code>0–9</code>, <code>.</code> och <code>-</code> tillåtna.
+      Endast <code>a-z</code>, <code>0-9</code>, <code>.</code> och <code>-</code> tillåtna.
     </p>
 
-    {{/* Swish */}}
     <div style="margin-bottom:1rem;">
       <label for="swish_phone" style="display:block;font-weight:600;margin-bottom:.35rem;">
         Mobilnummer för Swish
@@ -71,7 +66,6 @@
              placeholder="07XXXXXXXX" required>
     </div>
 
-    {{/* Paket */}}
     <div style="margin-bottom:1.5rem;">
       <div style="font-weight:600;margin-bottom:.6rem;">Välj paket</div>
       <label style="display:block;border:1px solid #ddd;border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem;cursor:pointer;">
@@ -90,7 +84,6 @@
       </label>
     </div>
 
-    {{/* Språk */}}
     <div style="margin-bottom:1.75rem;">
       <label style="display:block;font-weight:600;margin-bottom:.5rem;">Kommunikationsspråk</label>
       <label style="display:inline-flex;align-items:center;gap:.4rem;margin-right:1.5rem;cursor:pointer;">
@@ -117,28 +110,4 @@
     </p>
   </form>
 </div>
-
-{% block scripts %}
-<script>
-  // HTMX-svar för adressvalidering
-  document.body.addEventListener("htmx:afterRequest", function(evt) {
-    if (!evt.detail.elt.id === "desired_prefix") return;
-    try {
-      const data = JSON.parse(evt.detail.xhr.responseText);
-      const el = document.getElementById("address-status");
-      if (document.getElementById("desired_prefix").value.trim() === "") {
-        el.innerHTML = "";
-        return;
-      }
-      if (data.available) {
-        el.innerHTML = '<span style="color:#155724;">&#10003; Adressen är ledig</span>';
-      } else if (data.reason === "invalid") {
-        el.innerHTML = '<span style="color:#721c24;">Ogiltiga tecken i adressen</span>';
-      } else {
-        el.innerHTML = '<span style="color:#721c24;">&#10007; Adressen är tagen</span>';
-      }
-    } catch (e) {}
-  });
-</script>
-{% endblock %}
 {% endblock %}

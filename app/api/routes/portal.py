@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_customer
@@ -14,6 +15,7 @@ from app.models.audit_log import AuditLog
 from app.models.customer import Customer
 from app.models.deletion_request import DeletionRequest, DeletionStatus
 from app.models.email_account import AccountStatus, EmailAccount
+from app.models.payment import Payment  # noqa: F401 — behövs för selectinload
 from app.services.email_service import EmailService
 from app.services.hostek_service import HostekService
 
@@ -73,6 +75,7 @@ async def dashboard(
 ):
     result = await db.execute(
         select(EmailAccount)
+        .options(selectinload(EmailAccount.payments))
         .where(EmailAccount.customer_id == customer.id)
         .order_by(EmailAccount.created_at.asc())
     )

@@ -34,6 +34,7 @@ async def check_address(
     prefix: str = "",
     db: AsyncSession = Depends(get_db),
 ):
+    """JSON-endpoint för programmatisk användning."""
     if not prefix or not _PREFIX_RE.match(prefix.strip().lower()):
         return JSONResponse({"available": False, "reason": "invalid"})
 
@@ -43,6 +44,28 @@ async def check_address(
     )
     available = taken.scalar_one_or_none() is None
     return JSONResponse({"available": available})
+
+
+@router.get("/api/check-address-fragment", response_class=HTMLResponse)
+async def check_address_fragment(
+    desired_prefix: str = "",
+    db: AsyncSession = Depends(get_db),
+):
+    """HTML-fragment för HTMX live-validering i registreringsformuläret."""
+    p = desired_prefix.strip().lower()
+    if not p:
+        return HTMLResponse("")
+    if not _PREFIX_RE.match(p):
+        return HTMLResponse('<span style="color:#721c24;">Ogiltiga tecken — använd a-z, 0-9, punkt, bindestreck</span>')
+
+    address = f"{p}@kramnet.se"
+    taken = await db.execute(
+        select(EmailAccount).where(EmailAccount.address == address)
+    )
+    if taken.scalar_one_or_none() is not None:
+        return HTMLResponse(f'<span style="color:#721c24;">&#10007; {address} är redan tagen</span>')
+
+    return HTMLResponse(f'<span style="color:#155724;">&#10003; {address} är ledig</span>')
 
 
 # ─── registration form ────────────────────────────────────────────────────────

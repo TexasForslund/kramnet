@@ -15,7 +15,7 @@ from app.models.audit_log import AuditLog
 from app.models.customer import Customer
 from app.models.deletion_request import DeletionRequest, DeletionStatus
 from app.models.email_account import AccountStatus, EmailAccount
-from app.models.payment import Payment, PaymentStatus
+from app.models.payment import Payment, PaymentStatus, PaymentType
 from app.services.email_service import EmailService
 from app.services.hostek_service import HostekService
 
@@ -432,6 +432,89 @@ async def admin_confirm_payment(
         f'<small style="color:#666;">{now.strftime("%Y-%m-%d %H:%M")}</small>'
         f'</span>'
     )
+
+
+@router.post("/admin/payment/{payment_id}/reject", response_class=HTMLResponse)
+async def admin_reject_payment(
+    payment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    result = await db.execute(
+        select(Payment)
+        .options(
+            selectinload(Payment.email_account).selectinload(EmailAccount.customer)
+        )
+        .where(Payment.id == payment_id)
+    )
+    payment = result.scalar_one_or_none()
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Betalningen hittades inte")
+
+    account = payment.email_account
+    customer = account.customer
+
+    payment.status = PaymentStatus.failed
+
+    db.add(AuditLog(
+        customer_id=customer.id,
+        email_account_id=account.id,
+        event_type="payment_rejected",
+        metadata_={"payment_id": str(payment_id)},
+        performed_by="admin",
+    ))
+    await db.flush()
+
+    await _email_service.send_admin_notification(
+        event_type="payment_rejected_customer_notified",
+        details={"kund": customer.name, "konto": account.address},
+        db=db,
+    )
+
+    # Skicka mejl till kunden
+    lang = customer.language or "sv"
+    body_sv = (
+        f"Hej {customer.name},\n\n"
+        f"Vi kunde tyvärr inte verifiera din betalning för {account.address}.\n\n"
+        f"Kontakta oss på kramnet@broadviewab.se så hjälper vi dig.\n\n"
+        f"---\nHälsningar,\nKramnet-teamet\nkramnet@broadviewab.se"
+    )
+    body_en = (
+        f"Hi {customer.name},\n\n"
+        f"We were unable to verify your payment for {account.address}.\n\n"
+        f"Please contact us at kramnet@broadviewab.se and we will assist you.\n\n"
+        f"---\nBest regards,\nThe Kramnet Team\nkramnet@broadviewab.se"
+    )
+    subject_sv = "Vi kunde inte verifiera din betalning – Kramnet"
+    subject_en = "We could not verify your payment – Kramnet"
+    body = body_sv if lang == "sv" else body_en
+    subject = subject_sv if lang == "sv" else subject_en
+
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            await client.post(
+                "https://api.postmarkapp.com/email",
+                json={
+                    "From": "Kramnet <noreply@kramnet.se>",
+                    "To": customer.contact_email,
+                    "Subject": subject,
+                    "TextBody": body,
+                    "MessageStream": "outbound",
+                },
+                headers={
+                    "X-Postmark-Server-Token": settings.postmark_api_key,
+                    "Accept": "application/json",
+                },
+            )
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Failed to send payment rejection email")
+
+    await db.commit()
+
+    # HTMX: ta bort raden
+    return HTMLResponse(f'<div id="pv-row-{payment_id}" style="display:none;"></div>')
 
 
 @router.post(

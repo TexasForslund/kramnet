@@ -82,9 +82,44 @@
     </form>
   </div>
 
+  <!-- Väntande betalningar (pending_verification) -->
+  {% set pending_v = account.payments | selectattr("status", "equalto", "pending_verification") | list %}
+  {% if pending_v %}
+  <div style="background:#fff8e1; border:1px solid #f59e0b; border-radius:6px; padding:.75rem 1rem; margin-bottom:.75rem;">
+    <h2 style="font-size:.9rem; color:#92400e; margin-bottom:.5rem;">
+      &#9888; Betalningar som väntar på verifiering
+    </h2>
+    {% for p in pending_v %}
+    <div id="pv-row-{{ p.id }}" style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; padding:.5rem 0; border-top:1px solid #fde68a;">
+      <div style="flex:1; font-size:.875rem;">
+        <strong>{{ "%.0f"|format(p.amount_ore / 100) }} kr</strong>
+        &nbsp;·&nbsp;ref: <code>{{ p.id | string | replace("-","") | truncate(8, killwords=True, end="") | upper }}</code>
+        &nbsp;·&nbsp;{{ p.created_at.strftime("%Y-%m-%d %H:%M") }}
+      </div>
+      <div style="display:flex; gap:.4rem;">
+        <button
+          class="btn-sm btn-ok"
+          hx-post="/admin/payment/{{ p.id }}/confirm"
+          hx-target="#payment-status-{{ p.id }}"
+          hx-swap="outerHTML"
+        >Bekräfta</button>
+        <button
+          class="btn-sm btn-warn"
+          hx-post="/admin/payment/{{ p.id }}/reject"
+          hx-target="#pv-row-{{ p.id }}"
+          hx-swap="outerHTML"
+          hx-confirm="Avvisa betalningen? Kunden meddelas via e-post."
+        >Avvisa</button>
+        <span id="payment-status-{{ p.id }}"></span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Betalningshistorik -->
   {% if account.payments %}
-  <h2 style="font-size:.9rem; color:#888; margin-bottom:.5rem;">Betalningar</h2>
+  <h2 style="font-size:.9rem; color:#888; margin-bottom:.5rem;">Betalningshistorik</h2>
   <table style="font-size:.85rem;">
     <thead>
       <tr>
@@ -103,13 +138,15 @@
         </td>
         <td>{{ p.payment_type.value }}</td>
         <td style="font-weight:600;">
-          {{ "%.2f"|format(p.amount_ore / 100) }} kr
+          {{ "%.0f"|format(p.amount_ore / 100) }} kr
         </td>
         <td>
           {% if p.status.value == "paid" %}
             <span class="badge badge-active">Betald</span>
+          {% elif p.status.value == "pending_verification" %}
+            <span class="badge badge-pending">Verifieras</span>
           {% elif p.status.value == "pending" %}
-            <span class="badge badge-pending">Väntande</span>
+            <span class="badge" style="background:#eee;color:#666;">Väntande</span>
           {% elif p.status.value == "failed" %}
             <span class="badge badge-inactive">Misslyckad</span>
           {% else %}

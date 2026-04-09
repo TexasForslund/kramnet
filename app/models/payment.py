@@ -17,6 +17,7 @@ class PaymentType(str, enum.Enum):
 
 class PaymentStatus(str, enum.Enum):
     pending = "pending"
+    pending_verification = "pending_verification"
     paid = "paid"
     failed = "failed"
     refunded = "refunded"

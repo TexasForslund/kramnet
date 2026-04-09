@@ -13,6 +13,10 @@
   <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Dina e-postkonton</h2>
 
   {% for account in email_accounts %}
+  {# Kolla om kontot har en betalning under verifiering #}
+  {% set verifying = account.payments | selectattr("status", "equalto", "pending_verification") | list %}
+  {% set pending_pay = account.payments | selectattr("status", "equalto", "pending") | list %}
+
   <div class="account-row" id="account-row-{{ account.id }}">
     <div>
       <div style="font-weight: 600; font-size: 1rem;">{{ account.address }}</div>
@@ -31,7 +35,11 @@
       {% if account.status.value == "active" %}
         <span class="badge badge-active">Aktiv</span>
       {% elif account.status.value == "inactive" %}
-        <span class="badge badge-inactive">Inaktiv</span>
+        {% if verifying %}
+          <span class="badge badge-pending">Betalning verifieras</span>
+        {% else %}
+          <span class="badge badge-inactive">Inaktiv</span>
+        {% endif %}
       {% elif account.status.value == "pending_deletion" %}
         <span class="badge badge-pending">Inväntar radering</span>
       {% else %}
@@ -39,17 +47,17 @@
       {% endif %}
 
       <div class="account-actions">
-        {% if account.status.value == "inactive" %}
+        {% if account.status.value == "inactive" and not verifying %}
           <a
-            href="/portal/pay/{{ account.id }}"
+            href="/portal/account/{{ account.id }}/pay"
             class="btn"
             style="font-size:.875rem; padding:.4rem .8rem;"
           >
-            Förnya nu – 149 kr
+            Betala nu – {{ (pending_pay[0].amount_ore // 100) if pending_pay else 149 }} kr
           </a>
         {% endif %}
 
-        {% if account.status.value not in ("pending_deletion", "deleted") %}
+        {% if account.status.value not in ("pending_deletion", "deleted") and not verifying %}
           <a
             href="/portal/account/{{ account.id }}/change-password"
             class="btn btn-secondary"

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Betala – {{ account.address }} – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 0 auto;">
+  <div style="margin-bottom:1.25rem;">
+    <a href="/portal/dashboard" style="font-size:.9rem;">&larr; Tillbaka till mina konton</a>
+  </div>
+
+  <h1 style="font-size:1.4rem; margin-bottom:.4rem;">Betala via Swish</h1>
+  <p style="color:#666; margin-bottom:1.75rem; font-size:.95rem;">
+    Konto: <strong>{{ account.address }}</strong>
+  </p>
+
+  <div class="card">
+    <h2 style="font-size:1rem; margin-bottom:1rem; color:#444;">Betalningsinstruktion</h2>
+    <ol style="padding-left:1.25rem; line-height:2; font-size:.95rem; color:#333;">
+      <li>Öppna Swish på din telefon</li>
+      <li>Ange mottagarnummer:</li>
+    </ol>
+
+    <div style="background:#f0f5ff; border:2px solid #0057b8; border-radius:8px;
+                padding:1rem 1.25rem; margin:1rem 0; text-align:center;">
+      <div style="font-size:.8rem; color:#666; margin-bottom:.25rem;">Swish-nummer</div>
+      <div style="font-size:2rem; font-weight:700; letter-spacing:.05em; color:#0057b8;">
+        {{ swish_payee_number }}
+      </div>
+    </div>
+
+    <ol start="3" style="padding-left:1.25rem; line-height:2; font-size:.95rem; color:#333;">
+      <li>Ange beloppet: <strong>{{ amount_kr }} kr</strong></li>
+      <li>Skriv denna referens i meddelandefältet:</li>
+    </ol>
+
+    <div style="background:#fff8e1; border:2px solid #f59e0b; border-radius:8px;
+                padding:1rem 1.25rem; margin:1rem 0; text-align:center;">
+      <div style="font-size:.8rem; color:#666; margin-bottom:.25rem;">Referens (skriv i Swish-meddelandet)</div>
+      <div style="font-size:1.6rem; font-weight:700; letter-spacing:.15em; font-family:monospace; color:#92400e;">
+        {{ payment_ref }}
+      </div>
+    </div>
+
+    <p style="font-size:.85rem; color:#888; margin-bottom:1.5rem;">
+      Referensen hjälper oss att koppla din betalning till rätt konto.
+    </p>
+
+    <div id="payment-action">
+      <button
+        class="btn"
+        style="width:100%; padding:.75rem; font-size:1rem;"
+        hx-post="/portal/account/{{ account.id }}/payment-sent"
+        hx-target="#payment-action"
+        hx-swap="outerHTML"
+        hx-confirm="Bekräfta att du har skickat betalningen på {{ amount_kr }} kr."
+      >
+        Jag har betalat
+      </button>
+      <p style="font-size:.8rem; color:#aaa; text-align:center; margin-top:.75rem;">
+        Klicka efter att du har skickat betalningen i Swish.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem; font-size:.875rem; color:#666;">
+    <strong>Sammanfattning</strong>
+    <table style="width:100%; margin-top:.5rem; border-collapse:collapse;">
+      <tr>
+        <td style="padding:.3rem 0; color:#888;">Konto</td>
+        <td style="text-align:right;">{{ account.address }}</td>
+      </tr>
+      <tr>
+        <td style="padding:.3rem 0; color:#888;">Paket</td>
+        <td style="text-align:right;">
+          {{ "Familj" if account.package_type == "family" else "Enskild" }}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:.3rem 0; color:#888;">Belopp</td>
+        <td style="text-align:right; font-weight:600;">{{ amount_kr }} kr</td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endblock %}

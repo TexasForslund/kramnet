@@ -42,12 +42,12 @@ templates = Jinja2Templates(directory="app/templates")
 app.include_router(auth_router.router, prefix="/auth", tags=["auth"])
 app.include_router(portal_router.router, tags=["portal"])
 app.include_router(register_router.router, tags=["register"])
+app.include_router(payments.router, tags=["payments"])  # portal payment pages
 app.include_router(admin.router, tags=["admin"])
 
 # REST API routes
 app.include_router(customers.router, prefix="/api/customers", tags=["customers"])
 app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
-app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
 
 
 def get_email_service() -> EmailService:
