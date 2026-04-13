@@ -30,3 +30,9 @@ postmarker==1.0
 
 # Utilities
 python-dotenv==1.0.1
+
+# Testing
+pytest
+pytest-asyncio
+pytest-mock
+aiosqlite
