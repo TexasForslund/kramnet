@@ -18,11 +18,13 @@ from app.models.email_account import AccountStatus, EmailAccount
 from app.models.payment import Payment, PaymentStatus, PaymentType
 from app.services.email_service import EmailService
 from app.services.hostek_service import HostekAPIError, HostekService
+from app.services.migration_service import MigrationService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 _email_service = EmailService()
 _hostek = HostekService()
+_migration = MigrationService()
 
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
@@ -545,6 +547,107 @@ async def admin_hostek_test(
             "no_credentials": False,
         },
     )
+
+
+@router.get("/admin/migration")
+async def admin_migration(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    if not settings.hostek_customer_id:
+        return templates.TemplateResponse(
+            "admin/migration.html",
+            {
+                "request": request,
+                "preview": None,
+                "no_credentials": True,
+            },
+        )
+
+    preview = None
+    error = None
+    try:
+        preview = await _migration.preview_migration(db, _hostek)
+    except HostekAPIError as exc:
+        error = str(exc)
+
+    return templates.TemplateResponse(
+        "admin/migration.html",
+        {
+            "request": request,
+            "preview": preview,
+            "error": error,
+            "no_credentials": False,
+        },
+    )
+
+
+@router.post("/admin/migration/dry-run", response_class=HTMLResponse)
+async def admin_migration_dry_run(
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    try:
+        result = await _migration.run_migration(db, _hostek, dry_run=True)
+    except HostekAPIError as exc:
+        return HTMLResponse(
+            f'<div class="error">API-fel: {exc}</div>',
+            status_code=502,
+        )
+
+    return HTMLResponse(_render_migration_result(result))
+
+
+@router.post("/admin/migration/run", response_class=HTMLResponse)
+async def admin_migration_run(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    body = await request.json()
+    if body.get("confirm") != "IMPORTERA":
+        return HTMLResponse(
+            '<div class="error">Bekräftelse saknas — skriv IMPORTERA i fältet.</div>',
+            status_code=400,
+        )
+
+    try:
+        result = await _migration.run_migration(db, _hostek, dry_run=False)
+    except HostekAPIError as exc:
+        return HTMLResponse(
+            f'<div class="error">API-fel: {exc}</div>',
+            status_code=502,
+        )
+
+    return HTMLResponse(_render_migration_result(result))
+
+
+def _render_migration_result(result: dict) -> str:
+    dry = result["dry_run"]
+    mode_label = "TESTKÖRNING" if dry else "GENOMFÖRD IMPORT"
+    mode_css = "notice" if dry else "badge-active"
+    errors_html = ""
+    if result["errors"]:
+        items = "".join(f"<li>{e}</li>" for e in result["errors"])
+        errors_html = f'<ul style="margin:.5rem 0 0 1rem;color:#721c24;">{items}</ul>'
+
+    return f"""
+<div class="card" style="border-color:{'#0057b8' if dry else '#27ae60'};">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+    <span class="badge {mode_css}" style="font-size:.85rem;padding:.3rem .75rem;">{mode_label}</span>
+  </div>
+  <table style="width:auto;">
+    <tr><th style="text-align:right;padding-right:1rem;">Importerade</th>
+        <td><strong>{result['imported']}</strong></td></tr>
+    <tr><th style="text-align:right;padding-right:1rem;">Hoppades över</th>
+        <td>{result['skipped']}</td></tr>
+    <tr><th style="text-align:right;padding-right:1rem;">Fel</th>
+        <td>{len(result['errors'])}</td></tr>
+  </table>
+  {errors_html}
+</div>
+"""
 
 
 @router.post(

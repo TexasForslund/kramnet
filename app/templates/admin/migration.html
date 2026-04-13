@@ -1,0 +1,184 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Migration – Kramnet Admin{% endblock %}
+
+{% block head %}
+<style>
+  .overview-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .overview-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+  }
+  .overview-card .ov-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.1;
+  }
+  .overview-card .ov-label {
+    font-size: .8rem;
+    color: #888;
+    margin-top: .3rem;
+  }
+  .overview-card.highlight .ov-value { color: #0057b8; }
+  .confirm-wrap { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  #confirm-input { width: 160px; font-family: monospace; }
+  #btn-import { transition: opacity .2s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Hostek → Kramnet migration</h1>
+
+{% if no_credentials %}
+<div class="error">
+  <strong>Konfiguration saknas:</strong> <code>HOSTEK_CUSTOMER_ID</code> är tomt.
+  Lägg till värdet i <code>.env</code> och starta om servern.
+</div>
+
+{% elif error %}
+<div class="error" style="margin-bottom:1.25rem;">
+  <strong>API-fel:</strong> {{ error }}
+</div>
+
+{% elif preview %}
+
+<!-- ── Översiktskort ─────────────────────────────────────────────────────── -->
+<div class="overview-grid">
+  <div class="overview-card">
+    <div class="ov-value">{{ preview.total_in_hostek }}</div>
+    <div class="ov-label">Konton i Hostek</div>
+  </div>
+  <div class="overview-card">
+    <div class="ov-value">{{ preview.already_imported }}</div>
+    <div class="ov-label">Redan importerade</div>
+  </div>
+  <div class="overview-card highlight">
+    <div class="ov-value">{{ preview.to_import }}</div>
+    <div class="ov-label">Att importera</div>
+  </div>
+</div>
+
+<!-- ── Varning ──────────────────────────────────────────────────────────── -->
+<div class="notice" style="margin-bottom:1.25rem;">
+  <strong>Råd:</strong> Kör alltid en <em>testkörning</em> först för att se
+  vad som skulle importeras — utan att ändra något i databasen.
+</div>
+
+<!-- ── Urvalstabell ─────────────────────────────────────────────────────── -->
+{% if preview.sample %}
+<div class="card" style="margin-bottom:1.5rem;">
+  <h2>Urval — första {{ preview.sample|length }} att importera</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Adress</th>
+        <th>Förnamn</th>
+        <th>Efternamn</th>
+        <th>Username</th>
+        <th>Pending</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mb in preview.sample %}
+      <tr>
+        <td>{{ mb.address }}</td>
+        <td>{{ mb.first_name }}</td>
+        <td>{{ mb.last_name }}</td>
+        <td>{{ mb.username }}</td>
+        <td>
+          {% if mb.pending and mb.pending not in ("0","false","") %}
+          <span class="badge badge-pending">Ja</span>
+          {% else %}
+          <span class="badge badge-active">Nej</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:1.5rem;">
+  <p style="color:#888;">Inga nya konton att importera — allt är redan importerat.</p>
+</div>
+{% endif %}
+
+<!-- ── Åtgärder ─────────────────────────────────────────────────────────── -->
+{% if preview.to_import > 0 %}
+<div class="card">
+  <h2 style="margin-bottom:1rem;">Kör migrering</h2>
+
+  <!-- Testkörning -->
+  <div style="margin-bottom:1.5rem;">
+    <p style="margin-bottom:.6rem;font-size:.9rem;color:#555;">
+      Simulerar importen och visar statistik — ingenting sparas.
+    </p>
+    <button
+      class="btn"
+      hx-post="/admin/migration/dry-run"
+      hx-target="#migration-result"
+      hx-swap="innerHTML"
+      hx-indicator="#dry-run-spinner"
+    >
+      Kör testkörning
+    </button>
+    <span id="dry-run-spinner" class="htmx-indicator" style="margin-left:.5rem;color:#888;font-size:.85rem;">
+      Kör…
+    </span>
+  </div>
+
+  <!-- Riktig import -->
+  <div style="border-top:1px solid #eee;padding-top:1.25rem;">
+    <p style="margin-bottom:.6rem;font-size:.9rem;color:#555;">
+      Importerar <strong>{{ preview.to_import }}</strong> konton till databasen.
+      Skriv <code>IMPORTERA</code> i fältet för att låsa upp knappen.
+    </p>
+    <div class="confirm-wrap">
+      <input
+        id="confirm-input"
+        type="text"
+        placeholder="IMPORTERA"
+        oninput="document.getElementById('btn-import').disabled = this.value !== 'IMPORTERA';"
+        autocomplete="off"
+      >
+      <button
+        id="btn-import"
+        class="btn btn-danger"
+        disabled
+        hx-post="/admin/migration/run"
+        hx-target="#migration-result"
+        hx-swap="innerHTML"
+        hx-indicator="#run-spinner"
+        hx-vals='{"confirm": "IMPORTERA"}'
+        hx-ext="json-enc"
+      >
+        Importera alla
+      </button>
+      <span id="run-spinner" class="htmx-indicator" style="margin-left:.5rem;color:#888;font-size:.85rem;">
+        Importerar…
+      </span>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Resultatssektion (uppdateras av HTMX) ────────────────────────────── -->
+<div id="migration-result" style="margin-top:1.25rem;"></div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/htmx.org@1.9.10/dist/ext/json-enc.js" defer></script>
+{% endblock %}
