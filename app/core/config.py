@@ -22,8 +22,11 @@ class Settings(BaseSettings):
     swish_payee_number: str = "0700000000"  # Swish-nummer kunder betalar till
 
     # Hostek
-    hostek_api_url: str
-    hostek_api_key: str
+    hostek_api_url: str = "https://partner.ilait.se/api"
+    hostek_api_user: str = ""
+    hostek_api_password: str = ""
+    hostek_customer_id: str = ""
+    hostek_domain_id: str = "127978"
 
     # Postmark
     postmark_api_key: str

@@ -17,7 +17,7 @@ from app.models.deletion_request import DeletionRequest, DeletionStatus
 from app.models.email_account import AccountStatus, EmailAccount
 from app.models.payment import Payment, PaymentStatus, PaymentType
 from app.services.email_service import EmailService
-from app.services.hostek_service import HostekService
+from app.services.hostek_service import HostekAPIError, HostekService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -54,7 +54,7 @@ def _status_fragment(account: EmailAccount) -> str:
         ""
         if account.status == AccountStatus.active
         else (
-            f'<button class="btn-sm btn-ok" '
+            f'<button type="button" class="btn-sm btn-ok" '
             f'hx-post="/admin/account/{aid}/activate" '
             f'hx-target="#status-{aid}" hx-swap="outerHTML">'
             f"Aktivera</button>"
@@ -64,7 +64,7 @@ def _status_fragment(account: EmailAccount) -> str:
         ""
         if account.status != AccountStatus.active
         else (
-            f'<button class="btn-sm btn-warn" '
+            f'<button type="button" class="btn-sm btn-warn" '
             f'hx-post="/admin/account/{aid}/deactivate" '
             f'hx-target="#status-{aid}" hx-swap="outerHTML">'
             f"Inaktivera</button>"
@@ -288,6 +288,7 @@ async def admin_activate(
 
     account.status = AccountStatus.active
     account.activated_at = now
+    account.expires_at = now + timedelta(days=365)
 
     db.add(AuditLog(
         customer_id=account.customer_id,
@@ -515,6 +516,35 @@ async def admin_reject_payment(
 
     # HTMX: ta bort raden
     return HTMLResponse(f'<div id="pv-row-{payment_id}" style="display:none;"></div>')
+
+
+@router.get("/admin/hostek-test")
+async def admin_hostek_test(
+    request: Request,
+    _: None = Depends(require_admin),
+):
+    if not settings.hostek_customer_id:
+        return templates.TemplateResponse(
+            "admin/hostek_test.html",
+            {"request": request, "mailboxes": None, "error": None, "no_credentials": True},
+        )
+
+    mailboxes = None
+    error = None
+    try:
+        mailboxes = await _hostek.list_mailboxes()
+    except HostekAPIError as exc:
+        error = str(exc)
+
+    return templates.TemplateResponse(
+        "admin/hostek_test.html",
+        {
+            "request": request,
+            "mailboxes": mailboxes[:20] if mailboxes else [],
+            "error": error,
+            "no_credentials": False,
+        },
+    )
 
 
 @router.post(

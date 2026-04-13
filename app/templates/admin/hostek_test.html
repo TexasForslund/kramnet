@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Hostek-test – Kramnet Admin{% endblock %}
+
+{% block content %}
+<h1>Hostek API-test</h1>
+
+{% if no_credentials %}
+<div class="error" style="margin-bottom:1.25rem;">
+  <strong>Varning:</strong> <code>HOSTEK_CUSTOMER_ID</code> är inte konfigurerat.
+  Lägg till värdet i <code>.env</code> och starta om servern.
+</div>
+{% elif error %}
+<div class="error" style="margin-bottom:1.25rem;">
+  <strong>API-fel:</strong> {{ error }}
+</div>
+{% elif mailboxes is not none %}
+
+<div class="card">
+  <p style="margin-bottom:.75rem;color:#555;font-size:.875rem;">
+    Visar upp till 20 mailboxar från
+    <code>/customers/{cid}/domains/{did}/email_mailboxes</code>.
+  </p>
+
+  {% if mailboxes|length == 0 %}
+  <p style="color:#888;">Inga mailboxar hittades.</p>
+  {% else %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Recipient</th>
+        <th>Username</th>
+        <th>Pending</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mb in mailboxes %}
+      <tr>
+        <td>{{ mb.id }}</td>
+        <td>{{ mb.recipient }}</td>
+        <td>{{ mb.username }}</td>
+        <td>
+          {% if mb.pending and mb.pending != "0" and mb.pending != "false" %}
+          <span class="badge badge-pending">Ja</span>
+          {% else %}
+          <span class="badge badge-active">Nej</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

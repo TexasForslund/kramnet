@@ -144,6 +144,10 @@
       <a href="/admin/deletion-requests" {% if "/admin/deletion-requests" in request.url.path %}class="active"{% endif %}>
         Raderingar
       </a>
+      <div class="nav-section">Verktyg</div>
+      <a href="/admin/hostek-test" {% if request.url.path == "/admin/hostek-test" %}class="active"{% endif %}>
+        Hostek-test
+      </a>
     </aside>
 
     <main>
