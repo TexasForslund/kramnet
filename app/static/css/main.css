@@ -1,0 +1,261 @@
+/* ── Reset ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: -0.5px;
+  background: #E8F0F3;
+  color: #1a1a2e;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Familjen Grotesk', sans-serif;
+  letter-spacing: -1px;
+}
+
+a {
+  color: #00648F;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+p, label, button, input, select, textarea {
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+/* ── Navbar ──────────────────────────────────────────────────────────── */
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #E8F0F3;
+  height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+.navbar-logo:hover { text-decoration: none; }
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-link {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: .95rem;
+}
+.navbar-link:hover { color: #00648F; text-decoration: none; }
+
+/* ── Main layout ─────────────────────────────────────────────────────── */
+main {
+  max-width: 860px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  background: #00648F;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.btn-primary:hover {
+  background: #004f72;
+  color: #fff;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1.5px solid #d1dde3;
+  background: #fff;
+  color: #1a1a2e;
+  font-weight: 600;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+.btn-secondary:hover {
+  background: #E8F0F3;
+  text-decoration: none;
+  color: #1a1a2e;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1.5px solid #00648F;
+  background: transparent;
+  color: #00648F;
+  font-weight: 600;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.btn-outline:hover {
+  background: #E8F0F3;
+  text-decoration: none;
+}
+
+/* Legacy .btn — used across portal/admin pages */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  background: #00648F;
+  color: #fff;
+  font-weight: 600;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.btn:hover { background: #004f72; color: #fff; text-decoration: none; }
+.btn-danger { background: #c0392b; }
+.btn-danger:hover { background: #a93226; }
+
+/* ── Btn-sm (admin tables) ───────────────────────────────────────────── */
+.btn-sm {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 8px;
+  border: none;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-ok   { background: #d4edda; color: #155724; }
+.btn-warn { background: #f8d7da; color: #721c24; }
+
+/* ── Inputs ──────────────────────────────────────────────────────────── */
+input[type="email"],
+input[type="text"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #d1dde3;
+  border-radius: 10px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+  letter-spacing: -0.5px;
+  color: #1a1a2e;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00648F;
+  box-shadow: 0 0 0 3px rgba(0,100,143,0.15);
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.badge-active   { background: #d4edda; color: #155724; }
+.badge-inactive { background: #f8d7da; color: #721c24; }
+.badge-pending  { background: #fff3cd; color: #856404; }
+
+/* ── Notices ─────────────────────────────────────────────────────────── */
+.notice {
+  padding: .85rem 1rem;
+  background: #e6f2f8;
+  border-left: 4px solid #00648F;
+  border-radius: 6px;
+  font-size: .9rem;
+}
+.error {
+  padding: .85rem 1rem;
+  background: #fdf0f0;
+  border-left: 4px solid #c0392b;
+  border-radius: 6px;
+  color: #c0392b;
+  font-size: .9rem;
+}
+
+/* ── Portal account rows ─────────────────────────────────────────────── */
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 0;
+  border-bottom: 1px solid #eee;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.account-row:last-child { border-bottom: none; }
+.account-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ── Utilities ───────────────────────────────────────────────────────── */
+.text-muted         { color: #6b7280; }
+.text-primary-color { color: #00648F; }
+.text-center        { text-align: center; }
+.w-full             { width: 100%; }
+
+@media (max-width: 600px) {
+  .navbar { padding: 0 1rem; }
+  main    { margin: 1.5rem auto; }
+}

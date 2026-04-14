@@ -4,10 +4,17 @@
 
 {% block head %}
 <style>
-  .reg-wrap {
+  main { max-width: 100%; margin: 0; padding: 0; }
+
+  .reg-page {
+    background: #E8F0F3;
+    min-height: calc(100vh - 64px);
+    padding: 2.5rem 1rem 4rem;
+  }
+
+  .reg-inner {
     max-width: 560px;
     margin: 0 auto;
-    padding: 2rem 0 3rem;
   }
 
   .back-link {
@@ -16,155 +23,133 @@
     gap: .4rem;
     font-size: .875rem;
     color: #6b7280;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.15s;
   }
-  .back-link:hover { color: #1a1a2e; text-decoration: none; }
+  .back-link:hover { color: #00648F; text-decoration: none; }
 
   .reg-card {
     background: #fff;
     border-radius: 20px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    padding: 2.5rem 2.25rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 2.75rem 2.5rem;
+  }
+
+  .reg-logo {
+    display: block;
+    margin: 0 auto 1.75rem;
   }
 
   .reg-card h1 {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     font-weight: 700;
+    color: #1a1a2e;
+    text-align: center;
     margin-bottom: .5rem;
   }
 
-  .reg-card .subtitle {
+  .reg-subtitle {
     color: #6b7280;
     font-size: .95rem;
-    margin-bottom: 2rem;
-    line-height: 1.5;
+    text-align: center;
+    line-height: 1.55;
+    margin-bottom: 2.25rem;
   }
 
-  /* ── Step dividers ───────────────────── */
-  .step-label {
-    display: flex;
-    align-items: center;
-    gap: .65rem;
-    font-family: 'Familjen Grotesk', sans-serif;
-    font-size: 1rem;
+  /* ── Section headings ─────────────────── */
+  .section-label {
+    font-size: .7rem;
     font-weight: 700;
-    color: #1a1a2e;
-    letter-spacing: -0.5px;
-    margin-bottom: 1.1rem;
-    margin-top: 1.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
   }
-  .step-label:first-of-type { margin-top: 0; }
-  .step-num {
-    width: 26px;
-    height: 26px;
-    background: #E8F0F3;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: .8rem;
-    font-weight: 700;
-    color: #00648F;
-    flex-shrink: 0;
-  }
+  .section-label:first-of-type { margin-top: 0; }
 
-  /* ── Field ───────────────────────────── */
+  /* ── Fields ───────────────────────────── */
   .field-group {
     margin-bottom: 1.1rem;
   }
   .field-group label {
     display: block;
     font-weight: 600;
-    font-size: .9rem;
+    font-size: .875rem;
     color: #1a1a2e;
     margin-bottom: .45rem;
   }
-  .field-group .hint {
-    font-size: .82rem;
+  .field-hint {
+    font-size: .8rem;
     color: #6b7280;
     font-weight: 400;
   }
 
-  /* ── Address pill ────────────────────── */
+  /* ── Address pill ─────────────────────── */
   .address-pill {
     display: flex;
     align-items: stretch;
-    border: 1.5px solid #d1dde3;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    background: #fff;
   }
-  .address-pill:focus-within {
-    border-color: #00648F;
-    box-shadow: 0 0 0 3px rgba(0,100,143,0.15);
-  }
-  .address-pill input {
-    border: none;
-    border-radius: 0;
-    box-shadow: none !important;
+  .address-prefix {
     flex: 1;
     min-width: 0;
-    padding: 12px 14px;
-    font-size: 1rem;
+    border-radius: 10px 0 0 10px !important;
+    border-right: none !important;
   }
-  .address-pill input:focus {
-    outline: none;
-    border-color: transparent;
-    box-shadow: none;
+  .address-prefix:focus {
+    border-color: #00648F;
+    box-shadow: 0 0 0 3px rgba(0,100,143,0.15);
+    position: relative;
+    z-index: 1;
   }
-  .address-suffix {
+  .address-suffix-label {
     display: flex;
     align-items: center;
     padding: 0 14px;
     background: #E8F0F3;
+    border: 1.5px solid #d1dde3;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
     color: #6b7280;
     font-size: .9rem;
     font-weight: 600;
     white-space: nowrap;
-    border-left: 1.5px solid #d1dde3;
   }
 
   #address-status {
-    min-height: 1.4rem;
-    font-size: .85rem;
-    margin-top: .5rem;
+    min-height: 1.25rem;
+    font-size: .82rem;
+    margin-top: .45rem;
   }
-  #address-status.ok  { color: #155724; }
-  #address-status.err { color: #c0392b; }
 
-  /* ── Package cards ───────────────────── */
+  /* ── Package cards ────────────────────── */
   .package-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: .75rem;
-    margin-top: .25rem;
   }
 
   .pkg-card {
     border: 2px solid #d1dde3;
     border-radius: 14px;
-    padding: 1.1rem 1.25rem;
+    padding: 20px;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
-    user-select: none;
     position: relative;
+    user-select: none;
   }
   .pkg-card:hover { border-color: #00648F; }
   .pkg-card.selected {
     border-color: #00648F;
     background: #f0f7fb;
   }
-  .pkg-card.selected .pkg-check {
-    opacity: 1;
-  }
 
   .pkg-check {
     position: absolute;
-    top: .75rem;
-    right: .75rem;
-    width: 20px;
-    height: 20px;
+    top: 12px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
     background: #00648F;
     border-radius: 50%;
     display: flex;
@@ -173,46 +158,42 @@
     opacity: 0;
     transition: opacity 0.15s;
   }
-  .pkg-check svg {
-    width: 12px;
-    height: 12px;
-    stroke: #fff;
-    stroke-width: 2.5;
-  }
+  .pkg-card.selected .pkg-check { opacity: 1; }
+  .pkg-check svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 2.5; fill: none; }
 
   .pkg-name {
     font-family: 'Familjen Grotesk', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #1a1a2e;
-    margin-bottom: .2rem;
+    margin-bottom: .25rem;
   }
   .pkg-desc {
     font-size: .85rem;
     color: #6b7280;
-    margin-bottom: .6rem;
+    margin-bottom: .75rem;
   }
   .pkg-price {
     font-family: 'Familjen Grotesk', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #00648F;
   }
-  .pkg-price span {
+  .pkg-price-unit {
     font-size: .8rem;
     font-weight: 400;
     color: #6b7280;
+    font-family: 'Open Sans', sans-serif;
   }
 
-  /* ── Language toggle ─────────────────── */
-  .lang-toggle {
+  /* ── Language pills ───────────────────── */
+  .lang-pills {
     display: flex;
     gap: .5rem;
-    margin-top: .4rem;
   }
-  .lang-btn {
+  .lang-pill {
     flex: 1;
-    padding: 10px;
+    padding: 11px;
     border: 2px solid #d1dde3;
     border-radius: 10px;
     background: #fff;
@@ -224,27 +205,34 @@
     text-align: center;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .lang-btn.selected {
+  .lang-pill.selected {
     border-color: #00648F;
     color: #00648F;
     background: #f0f7fb;
   }
 
-  /* ── Divider ─────────────────────────── */
-  .divider {
+  /* ── Divider ──────────────────────────── */
+  .reg-divider {
     border: none;
     border-top: 1.5px solid #E8F0F3;
     margin: 1.75rem 0;
   }
 
-  /* ── Submit btn ──────────────────────── */
-  .submit-btn {
+  /* ── Submit ───────────────────────────── */
+  .btn-submit {
     width: 100%;
     padding: 16px;
     font-size: 1rem;
     border-radius: 12px;
+    border: none;
+    background: #00648F;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
     margin-top: .5rem;
   }
+  .btn-submit:hover { background: #004f72; }
 
   .reg-footer {
     text-align: center;
@@ -255,159 +243,166 @@
   .reg-footer a { color: #00648F; font-weight: 600; }
 
   @media (max-width: 480px) {
-    .reg-card { padding: 1.75rem 1.25rem; }
+    .reg-card { padding: 2rem 1.25rem; }
     .package-grid { grid-template-columns: 1fr; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="reg-wrap">
+<div class="reg-page">
+  <div class="reg-inner">
 
-  <a href="https://broadview.se" class="back-link">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-    Tillbaka till broadview.se
-  </a>
+    <a href="https://broadview.se" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Tillbaka till broadview.se
+    </a>
 
-  <div class="reg-card">
-    <h1>Skaffa din @kramnet.se-adress</h1>
-    <p class="subtitle">En personlig e-postadress på kramnet.se. Välj prefix, betala via Swish.</p>
+    <div class="reg-card">
 
-    {% if error %}
-    <div class="error" style="margin-bottom:1.25rem;">{{ error }}</div>
-    {% endif %}
+      <svg class="reg-logo" width="140" viewBox="0 0 698 124" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kramnet">
+        <path d="M140.467 109.867V3.2H162.067V60.5333H168.467L190.867 29.8667H213.8V30.6667L186.467 67.2L217 109.067V109.867H191.8L168.467 76.5333H162.067V109.867H140.467Z" fill="black"/>
+        <path d="M223.369 109.867V29.8667H243.102V44.5333H246.302C246.835 41.8667 247.813 39.3778 249.235 37.0667C250.747 34.6667 253.013 32.7556 256.035 31.3333C259.058 29.8222 263.102 29.0667 268.169 29.0667H272.435V48.5333H266.569C259.013 48.5333 253.502 50.4444 250.035 54.2667C246.658 58.0889 244.969 63.8222 244.969 71.4667V109.867H223.369Z" fill="black"/>
+        <path d="M306.035 111.467C298.569 111.467 292.435 109.689 287.635 106.133C282.835 102.489 279.28 97.5111 276.969 91.2C274.658 84.8889 273.502 77.7333 273.502 69.7333C273.502 61.4667 274.658 54.2222 276.969 48C279.369 41.7778 282.969 36.9333 287.769 33.4667C292.569 30 298.613 28.2667 305.902 28.2667C311.502 28.2667 316.08 29.3778 319.635 31.6C323.28 33.7333 326.035 36.6222 327.902 40.2667H331.102V29.8667H351.102V109.867H331.102V99.4667H327.902C326.035 102.844 323.324 105.689 319.769 108C316.213 110.311 311.635 111.467 306.035 111.467ZM311.635 96.2667C317.058 96.2667 321.369 93.9111 324.569 89.2C327.858 84.4 329.502 77.9556 329.502 69.8667C329.502 61.6889 327.858 55.2444 324.569 50.5333C321.369 45.8222 317.058 43.4667 311.635 43.4667C306.747 43.4667 302.88 45.6889 300.035 50.1333C297.28 54.4889 295.902 61.0667 295.902 69.8667C295.902 78.6667 297.28 85.2889 300.035 89.7333C302.88 94.0889 306.747 96.2667 311.635 96.2667Z" fill="black"/>
+        <path d="M359.4 109.867L369.533 49.0667C370.244 45.0667 370.822 41.2889 371.267 37.7333C371.711 34.0889 371.933 31.4667 371.933 29.8667H391.133C391.133 31.7333 391 33.6889 390.733 35.7333C390.556 37.6889 390.289 39.7333 389.933 41.8667H393.133C395.178 37.8667 397.844 34.5333 401.133 31.8667C404.422 29.2 409 27.8667 414.867 27.8667C419.844 27.8667 423.978 29.1556 427.267 31.7333C430.644 34.2222 432.867 37.6 433.933 41.8667H437.133C439.178 37.8667 441.844 34.5333 445.133 31.8667C448.422 29.2 453 27.8667 458.867 27.8667C464.556 27.8667 469.222 29.1556 472.867 31.7333C476.6 34.3111 479.178 37.8667 480.6 42.4C482.111 46.8444 482.378 52.0444 481.4 58L472.733 109.867H451.133L459.267 61.0667C460.244 55.5556 460.067 51.3333 458.733 48.4C457.489 45.3778 455.267 43.8667 452.067 43.8667C448.956 43.8667 446.111 45.1556 443.533 47.7333C441.044 50.2222 438.911 53.5556 437.133 57.7333C435.444 61.9111 434.156 66.4889 433.267 71.4667L426.867 109.867H405.267L413.4 61.0667C414.378 55.5556 414.2 51.3333 412.867 48.4C411.533 45.3778 409.267 43.8667 406.067 43.8667C402.956 43.8667 400.156 45.1556 397.667 47.7333C395.178 50.2222 393.044 53.5556 391.267 57.7333C389.578 61.9111 388.289 66.4889 387.4 71.4667L381 109.867H359.4Z" fill="black"/>
+        <path d="M493.298 109.867V29.8667H513.298V41.8667H516.498C518.098 37.8667 520.542 34.5333 523.831 31.8667C527.209 29.2 532.142 27.8667 538.631 27.8667C547.52 27.8667 554.187 30.6667 558.631 36.2667C563.076 41.8667 565.298 49.4667 565.298 59.0667V109.867H543.698V62.6667C543.698 57.1556 542.72 52.9333 540.765 50C538.809 46.9778 535.609 45.4667 531.165 45.4667C526.009 45.4667 522.009 47.5111 519.165 51.6C516.32 55.6 514.898 60.6222 514.898 66.6667V109.867H493.298Z" fill="black"/>
+        <path d="M612.59 111.867C599.967 111.867 590.323 108.089 583.656 100.533C577.078 92.9778 573.79 82.7111 573.79 69.7333C573.79 61.0222 575.256 53.5556 578.19 47.3333C581.212 41.1111 585.567 36.3111 591.256 32.9333C597.034 29.5556 604.056 27.8667 612.323 27.8667C624.234 27.8667 633.345 31.4667 639.656 38.6667C646.056 45.8667 649.256 56.4444 649.256 70.4V74.9333H594.856C595.301 81.6889 597.034 87.0222 600.056 90.9333C603.167 94.7556 607.345 96.6667 612.59 96.6667C616.767 96.6667 620.101 95.4222 622.59 92.9333C625.167 90.4444 626.856 87.5556 627.656 84.2667H648.19C647.39 89.1556 645.612 93.6889 642.856 97.8667C640.101 102.044 636.234 105.422 631.256 108C626.278 110.578 620.056 111.867 612.59 111.867ZM594.856 61.3333H628.19C627.834 55.2889 626.323 50.6222 623.656 47.3333C620.99 43.9556 617.167 42.2667 612.19 42.2667C607.301 42.2667 603.345 43.8667 600.323 47.0667C597.39 50.1778 595.567 54.9333 594.856 61.3333Z" fill="black"/>
+        <path d="M670.119 109.867C668.074 107.467 666.43 104.578 665.185 101.2C664.03 97.8222 663.452 92.7556 663.452 86V45.0667H652.519V29.8667H663.719V9.86667H684.919V29.8667H697.852V45.0667H684.919V83.7333C684.919 90.7556 685.719 96.1333 687.319 99.8667C688.919 103.6 690.83 106.667 693.052 109.067V109.867H670.119Z" fill="black"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M64.1333 123.467C51.7778 123.467 40.7556 121.067 31.0667 116.267C21.3778 111.556 13.7778 104.667 8.26667 95.6C2.75556 86.4444 0 75.3333 0 62.2667C0 49.2889 2.71111 38.1778 8.13333 28.9333C13.6444 19.6 21.2889 12.4444 31.0667 7.46667C40.8444 2.48889 52.1778 0 65.0667 0C77.9556 0 88.8444 2.4 97.7333 7.2C106.622 11.9111 113.333 18.4 117.867 26.6667C122.489 34.8444 124.8 44.0889 124.8 54.4C124.8 62.5778 123.422 69.6889 120.667 75.7333C118 81.7778 114.4 86.4444 109.867 89.7333C105.333 93.0222 100.267 94.6667 94.6667 94.6667C89.5111 94.6667 85.6 93.4667 82.9333 91.0667C80.3556 88.6667 78.5333 86.3111 77.4667 84H74.2667C71.9556 87.2 69.3333 89.7778 66.4 91.7333C63.4667 93.6889 59.6889 94.6667 55.0667 94.6667C49.5556 94.6667 44.9778 93.2444 41.3333 90.4C37.6889 87.5556 34.9333 83.6444 33.0667 78.6667C31.2889 73.6 30.4 67.8667 30.4 61.4667C30.4 51.6889 32.4889 43.8222 36.6667 37.8667C40.8444 31.8222 47.0667 28.8 55.3333 28.8C59.4222 28.8 62.8444 29.6444 65.6 31.3333C68.3556 33.0222 70.4889 35.2889 72 38.1333H75.2V29.8667H90.4V73.8667C90.4 76.3556 90.8 78.4 91.6 80C92.4 81.6 94.0444 82.4 96.5333 82.4C99.5556 82.4 102.133 81.2444 104.267 78.9333C106.489 76.6222 108.178 73.4667 109.333 69.4667C110.578 65.4667 111.2 60.9333 111.2 55.8667C111.2 41.8222 107.111 31.0222 98.9333 23.4667C90.7556 15.8222 79.4667 12 65.0667 12C54.4 12 45.2889 14.0444 37.7333 18.1333C30.1778 22.2222 24.4 28 20.4 35.4667C16.4 42.8444 14.4 51.6 14.4 61.7333C14.4 71.7778 16.3556 80.5333 20.2667 88C24.2667 95.4667 29.9556 101.244 37.3333 105.333C44.8 109.422 53.6889 111.467 64 111.467C71.1111 111.467 77.8667 110.533 84.2667 108.667C90.7556 106.889 96.1333 104.889 100.4 102.667H101.2V115.467C97.1111 117.511 91.8222 119.333 85.3333 120.933C78.9333 122.622 71.8667 123.467 64.1333 123.467ZM69.7333 76.9333C67.2444 80.5778 64.0889 82.4 60.2667 82.4C56.8 82.4 54 80.6667 51.8667 77.2C49.8222 73.7333 48.8 68.5333 48.8 61.6C48.8 54.5778 49.8222 49.3778 51.8667 46C54 42.5333 56.8 40.8 60.2667 40.8C64.0889 40.8 67.2444 42.6667 69.7333 46.4C72.2222 50.0444 73.4667 55.1111 73.4667 61.6C73.4667 68.0889 72.2222 73.2 69.7333 76.9333Z" fill="#00648F"/>
+      </svg>
 
-    <form method="post" action="/register" id="reg-form">
+      <h1>Skaffa din @kramnet.se-adress</h1>
+      <p class="reg-subtitle">En personlig e-postadress på kramnet.se. Välj prefix och betala via Swish.</p>
 
-      <!-- Steg 1: Dina uppgifter -->
-      <div class="step-label">
-        <span class="step-num">1</span>
-        Dina uppgifter
-      </div>
+      {% if error %}
+      <div class="error" style="margin-bottom:1.5rem;">{{ error }}</div>
+      {% endif %}
 
-      <div class="field-group">
-        <label for="name">Ditt namn</label>
-        <input type="text" id="name" name="name"
-               value="{{ form.name if form else '' }}"
-               placeholder="Anna Andersson" required>
-      </div>
+      <form method="post" action="/register" id="reg-form">
 
-      <div class="field-group">
-        <label for="contact_email">
-          Din nuvarande e-postadress
-          <span class="hint">(för kvitto och inloggning)</span>
-        </label>
-        <input type="email" id="contact_email" name="contact_email"
-               value="{{ form.contact_email if form else '' }}"
-               placeholder="anna@example.com" required>
-      </div>
+        <!-- DINA UPPGIFTER -->
+        <p class="section-label">Dina uppgifter</p>
 
-      <div class="field-group">
-        <label for="swish_phone">Mobilnummer för Swish</label>
-        <input type="tel" id="swish_phone" name="swish_phone"
-               value="{{ form.swish_phone if form else '' }}"
-               placeholder="07XXXXXXXX" required>
-      </div>
-
-      <hr class="divider">
-
-      <!-- Steg 2: Din adress -->
-      <div class="step-label">
-        <span class="step-num">2</span>
-        Din adress
-      </div>
-
-      <div class="field-group">
-        <label for="desired_prefix">Önskad e-postadress</label>
-        <div class="address-pill">
-          <input type="text" id="desired_prefix" name="desired_prefix"
-                 value="{{ form.desired_prefix if form else '' }}"
-                 placeholder="anna"
-                 pattern="[a-z0-9.\-]+"
-                 hx-get="/api/check-address-fragment"
-                 hx-target="#address-status"
-                 hx-trigger="keyup changed delay:400ms"
-                 hx-include="#desired_prefix"
-                 required>
-          <span class="address-suffix">@kramnet.se</span>
+        <div class="field-group">
+          <label for="name">Ditt namn</label>
+          <input type="text" id="name" name="name"
+                 value="{{ form.name if form else '' }}"
+                 placeholder="Anna Andersson" required>
         </div>
-        <div id="address-status"></div>
-        <p style="font-size:.8rem;color:#6b7280;margin-top:.4rem;">
-          Endast <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">a–z</code>,
-          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">0–9</code>,
-          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">.</code> och
-          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">-</code> tillåtna.
-        </p>
-      </div>
 
-      <hr class="divider">
+        <div class="field-group">
+          <label for="contact_email">
+            Din nuvarande e-postadress
+            <span class="field-hint">(för kvitto och inloggning)</span>
+          </label>
+          <input type="email" id="contact_email" name="contact_email"
+                 value="{{ form.contact_email if form else '' }}"
+                 placeholder="anna@example.com" required>
+        </div>
 
-      <!-- Steg 3: Välj paket -->
-      <div class="step-label">
-        <span class="step-num">3</span>
-        Välj paket
-      </div>
+        <div class="field-group">
+          <label for="swish_phone">Mobilnummer för Swish</label>
+          <input type="tel" id="swish_phone" name="swish_phone"
+                 value="{{ form.swish_phone if form else '' }}"
+                 placeholder="07XXXXXXXX" required>
+        </div>
 
-      <input type="hidden" id="package_type" name="package_type"
-             value="{{ form.package_type if form else 'single' }}">
+        <hr class="reg-divider">
 
-      <div class="package-grid">
-        <div class="pkg-card {% if not form or form.package_type != 'family' %}selected{% endif %}"
-             data-pkg="single" onclick="selectPackage('single')">
-          <div class="pkg-check">
-            <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+        <!-- DIN ADRESS -->
+        <p class="section-label">Din adress</p>
+
+        <div class="field-group">
+          <label for="desired_prefix">Önskad e-postadress</label>
+          <div class="address-pill">
+            <input class="address-prefix"
+                   type="text" id="desired_prefix" name="desired_prefix"
+                   value="{{ form.desired_prefix if form else '' }}"
+                   placeholder="anna"
+                   pattern="[a-z0-9.\-]+"
+                   hx-get="/api/check-address-fragment"
+                   hx-target="#address-status"
+                   hx-trigger="keyup changed delay:400ms"
+                   hx-include="#desired_prefix"
+                   required>
+            <span class="address-suffix-label">@kramnet.se</span>
           </div>
-          <div class="pkg-name">Enskild</div>
-          <div class="pkg-desc">1 adress</div>
-          <div class="pkg-price">149 kr<span>/år</span></div>
+          <div id="address-status"></div>
+          <p style="font-size:.78rem;color:#6b7280;margin-top:.4rem;">
+            Endast
+            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">a–z</code>
+            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">0–9</code>
+            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">.</code>
+            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">-</code> tillåtna.
+          </p>
         </div>
-        <div class="pkg-card {% if form and form.package_type == 'family' %}selected{% endif %}"
-             data-pkg="family" onclick="selectPackage('family')">
-          <div class="pkg-check">
-            <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+
+        <hr class="reg-divider">
+
+        <!-- VÄLJ PAKET -->
+        <p class="section-label">Välj paket</p>
+
+        <input type="hidden" id="package_type" name="package_type"
+               value="{{ form.package_type if form else 'single' }}">
+
+        <div class="package-grid" style="margin-bottom:0;">
+          <div class="pkg-card {% if not form or form.package_type != 'family' %}selected{% endif %}"
+               data-pkg="single" onclick="selectPackage('single')">
+            <div class="pkg-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pkg-name">Enskild</div>
+            <div class="pkg-desc">1 adress</div>
+            <div class="pkg-price">149 kr<span class="pkg-price-unit">/år</span></div>
           </div>
-          <div class="pkg-name">Familj</div>
-          <div class="pkg-desc">Upp till 5 adresser</div>
-          <div class="pkg-price">249 kr<span>/år</span></div>
+          <div class="pkg-card {% if form and form.package_type == 'family' %}selected{% endif %}"
+               data-pkg="family" onclick="selectPackage('family')">
+            <div class="pkg-check">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="pkg-name">Familj</div>
+            <div class="pkg-desc">Upp till 5 adresser</div>
+            <div class="pkg-price">249 kr<span class="pkg-price-unit">/år</span></div>
+          </div>
         </div>
-      </div>
 
-      <hr class="divider">
+        <hr class="reg-divider">
 
-      <!-- Kommunikationsspråk -->
-      <div class="field-group" style="margin-bottom:0;">
-        <label>Kommunikationsspråk</label>
+        <!-- SPRÅK -->
+        <p class="section-label">Kommunikationsspråk</p>
+
         <input type="hidden" id="language" name="language"
                value="{{ form.language if form else 'sv' }}">
-        <div class="lang-toggle">
+
+        <div class="lang-pills">
           <button type="button"
-                  class="lang-btn {% if not form or form.language != 'en' %}selected{% endif %}"
+                  class="lang-pill {% if not form or form.language != 'en' %}selected{% endif %}"
                   data-lang="sv" onclick="selectLang('sv')">
             Svenska
           </button>
           <button type="button"
-                  class="lang-btn {% if form and form.language == 'en' %}selected{% endif %}"
+                  class="lang-pill {% if form and form.language == 'en' %}selected{% endif %}"
                   data-lang="en" onclick="selectLang('en')">
             English
           </button>
         </div>
-      </div>
 
-      <hr class="divider">
+        <hr class="reg-divider">
 
-      <button type="submit" class="btn submit-btn">
-        Registrera och fortsätt →
-      </button>
+        <button type="submit" class="btn-submit">
+          Registrera och fortsätt →
+        </button>
 
-    </form>
+      </form>
+    </div>
+
+    <div class="reg-footer">
+      Har du frågor? <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
+    </div>
+
   </div>
-
-  <div class="reg-footer">
-    Har du frågor? <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
-  </div>
-
 </div>
 {% endblock %}
 
@@ -415,15 +410,15 @@
 <script>
   function selectPackage(pkg) {
     document.getElementById('package_type').value = pkg;
-    document.querySelectorAll('.pkg-card').forEach(function(card) {
-      card.classList.toggle('selected', card.dataset.pkg === pkg);
+    document.querySelectorAll('.pkg-card').forEach(function(c) {
+      c.classList.toggle('selected', c.dataset.pkg === pkg);
     });
   }
 
   function selectLang(lang) {
     document.getElementById('language').value = lang;
-    document.querySelectorAll('.lang-btn').forEach(function(btn) {
-      btn.classList.toggle('selected', btn.dataset.lang === lang);
+    document.querySelectorAll('.lang-pill').forEach(function(b) {
+      b.classList.toggle('selected', b.dataset.lang === lang);
     });
   }
 </script>

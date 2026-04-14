@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.api.routes import accounts, admin, customers, payments
@@ -37,6 +38,7 @@ app = FastAPI(
 )
 
 templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Browser-facing routes (ingen /api-prefix)
 app.include_router(auth_router.router, prefix="/auth", tags=["auth"])
