@@ -2,112 +2,429 @@
 
 {% block title %}Skaffa Kramnet-adress{% endblock %}
 
+{% block head %}
+<style>
+  .reg-wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 2rem 0 3rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .875rem;
+    color: #6b7280;
+    margin-bottom: 1.75rem;
+  }
+  .back-link:hover { color: #1a1a2e; text-decoration: none; }
+
+  .reg-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 2.5rem 2.25rem;
+  }
+
+  .reg-card h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+
+  .reg-card .subtitle {
+    color: #6b7280;
+    font-size: .95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+
+  /* ── Step dividers ───────────────────── */
+  .step-label {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.1rem;
+    margin-top: 1.75rem;
+  }
+  .step-label:first-of-type { margin-top: 0; }
+  .step-num {
+    width: 26px;
+    height: 26px;
+    background: #E8F0F3;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #00648F;
+    flex-shrink: 0;
+  }
+
+  /* ── Field ───────────────────────────── */
+  .field-group {
+    margin-bottom: 1.1rem;
+  }
+  .field-group label {
+    display: block;
+    font-weight: 600;
+    font-size: .9rem;
+    color: #1a1a2e;
+    margin-bottom: .45rem;
+  }
+  .field-group .hint {
+    font-size: .82rem;
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  /* ── Address pill ────────────────────── */
+  .address-pill {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid #d1dde3;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: #fff;
+  }
+  .address-pill:focus-within {
+    border-color: #00648F;
+    box-shadow: 0 0 0 3px rgba(0,100,143,0.15);
+  }
+  .address-pill input {
+    border: none;
+    border-radius: 0;
+    box-shadow: none !important;
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+  .address-pill input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .address-suffix {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    background: #E8F0F3;
+    color: #6b7280;
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border-left: 1.5px solid #d1dde3;
+  }
+
+  #address-status {
+    min-height: 1.4rem;
+    font-size: .85rem;
+    margin-top: .5rem;
+  }
+  #address-status.ok  { color: #155724; }
+  #address-status.err { color: #c0392b; }
+
+  /* ── Package cards ───────────────────── */
+  .package-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+    margin-top: .25rem;
+  }
+
+  .pkg-card {
+    border: 2px solid #d1dde3;
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    position: relative;
+  }
+  .pkg-card:hover { border-color: #00648F; }
+  .pkg-card.selected {
+    border-color: #00648F;
+    background: #f0f7fb;
+  }
+  .pkg-card.selected .pkg-check {
+    opacity: 1;
+  }
+
+  .pkg-check {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    width: 20px;
+    height: 20px;
+    background: #00648F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .pkg-check svg {
+    width: 12px;
+    height: 12px;
+    stroke: #fff;
+    stroke-width: 2.5;
+  }
+
+  .pkg-name {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: .2rem;
+  }
+  .pkg-desc {
+    font-size: .85rem;
+    color: #6b7280;
+    margin-bottom: .6rem;
+  }
+  .pkg-price {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00648F;
+  }
+  .pkg-price span {
+    font-size: .8rem;
+    font-weight: 400;
+    color: #6b7280;
+  }
+
+  /* ── Language toggle ─────────────────── */
+  .lang-toggle {
+    display: flex;
+    gap: .5rem;
+    margin-top: .4rem;
+  }
+  .lang-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #d1dde3;
+    border-radius: 10px;
+    background: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .lang-btn.selected {
+    border-color: #00648F;
+    color: #00648F;
+    background: #f0f7fb;
+  }
+
+  /* ── Divider ─────────────────────────── */
+  .divider {
+    border: none;
+    border-top: 1.5px solid #E8F0F3;
+    margin: 1.75rem 0;
+  }
+
+  /* ── Submit btn ──────────────────────── */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: 12px;
+    margin-top: .5rem;
+  }
+
+  .reg-footer {
+    text-align: center;
+    font-size: .85rem;
+    color: #6b7280;
+    margin-top: 1.5rem;
+  }
+  .reg-footer a { color: #00648F; font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .reg-card { padding: 1.75rem 1.25rem; }
+    .package-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 560px; margin: 0 auto;">
-  <h1 style="font-size:1.6rem; margin-bottom:.4rem;">Skaffa din @kramnet.se-adress</h1>
-  <p style="color:#666; margin-bottom:1.75rem;">
-    En personlig e-postadress på kramnet.se. Välj prefix, betala via Swish.
-  </p>
+<div class="reg-wrap">
 
-  {% if error %}
-  <div class="error" style="margin-bottom:1rem;">{{ error }}</div>
-  {% endif %}
+  <a href="https://broadview.se" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Tillbaka till broadview.se
+  </a>
 
-  <form method="post" action="/register">
+  <div class="reg-card">
+    <h1>Skaffa din @kramnet.se-adress</h1>
+    <p class="subtitle">En personlig e-postadress på kramnet.se. Välj prefix, betala via Swish.</p>
 
-    <div style="margin-bottom:1rem;">
-      <label for="name" style="display:block;font-weight:600;margin-bottom:.35rem;">
-        Ditt namn
-      </label>
-      <input type="text" id="name" name="name"
-             value="{{ form.name if form else '' }}"
-             placeholder="Anna Andersson" required>
-    </div>
+    {% if error %}
+    <div class="error" style="margin-bottom:1.25rem;">{{ error }}</div>
+    {% endif %}
 
-    <div style="margin-bottom:1rem;">
-      <label for="contact_email" style="display:block;font-weight:600;margin-bottom:.35rem;">
-        Din nuvarande e-postadress
-        <span style="font-weight:400;color:#888;">(för kvitto och inloggning)</span>
-      </label>
-      <input type="email" id="contact_email" name="contact_email"
-             value="{{ form.contact_email if form else '' }}"
-             placeholder="anna@example.com" required>
-    </div>
+    <form method="post" action="/register" id="reg-form">
 
-    <div style="margin-bottom:.5rem;">
-      <label for="desired_prefix" style="display:block;font-weight:600;margin-bottom:.35rem;">
-        Önskad adress
-      </label>
-      <div style="display:flex;align-items:center;gap:.5rem;">
-        <input type="text" id="desired_prefix" name="desired_prefix"
-               value="{{ form.desired_prefix if form else '' }}"
-               placeholder="anna"
-               pattern="[a-z0-9.\-]+"
-               style="margin-bottom:0;flex:1;"
-               hx-get="/api/check-address-fragment"
-               hx-target="#address-status"
-               hx-trigger="keyup changed delay:400ms"
-               hx-include="#desired_prefix"
-               required>
-        <span style="white-space:nowrap;color:#555;">@kramnet.se</span>
+      <!-- Steg 1: Dina uppgifter -->
+      <div class="step-label">
+        <span class="step-num">1</span>
+        Dina uppgifter
       </div>
-    </div>
-    <div id="address-status" style="font-size:.85rem;min-height:1.4rem;margin-bottom:.75rem;"></div>
-    <p style="font-size:.825rem;color:#888;margin-bottom:1.25rem;">
-      Endast <code>a-z</code>, <code>0-9</code>, <code>.</code> och <code>-</code> tillåtna.
-    </p>
 
-    <div style="margin-bottom:1rem;">
-      <label for="swish_phone" style="display:block;font-weight:600;margin-bottom:.35rem;">
-        Mobilnummer för Swish
-      </label>
-      <input type="tel" id="swish_phone" name="swish_phone"
-             value="{{ form.swish_phone if form else '' }}"
-             placeholder="07XXXXXXXX" required>
-    </div>
+      <div class="field-group">
+        <label for="name">Ditt namn</label>
+        <input type="text" id="name" name="name"
+               value="{{ form.name if form else '' }}"
+               placeholder="Anna Andersson" required>
+      </div>
 
-    <div style="margin-bottom:1.5rem;">
-      <div style="font-weight:600;margin-bottom:.6rem;">Välj paket</div>
-      <label style="display:block;border:1px solid #ddd;border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem;cursor:pointer;">
-        <input type="radio" name="package_type" value="single"
-               {% if not form or form.package_type == "single" %}checked{% endif %}
-               style="width:auto;margin:0 .5rem 0 0;">
-        <strong>Enskild</strong> — 1 adress &nbsp;
-        <span style="color:#0057b8;font-weight:600;">149 kr/år</span>
-      </label>
-      <label style="display:block;border:1px solid #ddd;border-radius:6px;padding:.75rem 1rem;cursor:pointer;">
-        <input type="radio" name="package_type" value="family"
-               {% if form and form.package_type == "family" %}checked{% endif %}
-               style="width:auto;margin:0 .5rem 0 0;">
-        <strong>Familj</strong> — upp till 5 adresser &nbsp;
-        <span style="color:#0057b8;font-weight:600;">249 kr/år</span>
-      </label>
-    </div>
+      <div class="field-group">
+        <label for="contact_email">
+          Din nuvarande e-postadress
+          <span class="hint">(för kvitto och inloggning)</span>
+        </label>
+        <input type="email" id="contact_email" name="contact_email"
+               value="{{ form.contact_email if form else '' }}"
+               placeholder="anna@example.com" required>
+      </div>
 
-    <div style="margin-bottom:1.75rem;">
-      <label style="display:block;font-weight:600;margin-bottom:.5rem;">Kommunikationsspråk</label>
-      <label style="display:inline-flex;align-items:center;gap:.4rem;margin-right:1.5rem;cursor:pointer;">
-        <input type="radio" name="language" value="sv"
-               {% if not form or form.language != "en" %}checked{% endif %}
-               style="width:auto;margin:0;">
-        Svenska
-      </label>
-      <label style="display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;">
-        <input type="radio" name="language" value="en"
-               {% if form and form.language == "en" %}checked{% endif %}
-               style="width:auto;margin:0;">
-        English
-      </label>
-    </div>
+      <div class="field-group">
+        <label for="swish_phone">Mobilnummer för Swish</label>
+        <input type="tel" id="swish_phone" name="swish_phone"
+               value="{{ form.swish_phone if form else '' }}"
+               placeholder="07XXXXXXXX" required>
+      </div>
 
-    <button type="submit" class="btn" style="width:100%;padding:.75rem;">
-      Registrera och fortsätt till betalning
-    </button>
+      <hr class="divider">
 
-    <p style="font-size:.825rem;color:#888;text-align:center;margin-top:1rem;">
-      Har du frågor?
-      <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
-    </p>
-  </form>
+      <!-- Steg 2: Din adress -->
+      <div class="step-label">
+        <span class="step-num">2</span>
+        Din adress
+      </div>
+
+      <div class="field-group">
+        <label for="desired_prefix">Önskad e-postadress</label>
+        <div class="address-pill">
+          <input type="text" id="desired_prefix" name="desired_prefix"
+                 value="{{ form.desired_prefix if form else '' }}"
+                 placeholder="anna"
+                 pattern="[a-z0-9.\-]+"
+                 hx-get="/api/check-address-fragment"
+                 hx-target="#address-status"
+                 hx-trigger="keyup changed delay:400ms"
+                 hx-include="#desired_prefix"
+                 required>
+          <span class="address-suffix">@kramnet.se</span>
+        </div>
+        <div id="address-status"></div>
+        <p style="font-size:.8rem;color:#6b7280;margin-top:.4rem;">
+          Endast <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">a–z</code>,
+          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">0–9</code>,
+          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">.</code> och
+          <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">-</code> tillåtna.
+        </p>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Steg 3: Välj paket -->
+      <div class="step-label">
+        <span class="step-num">3</span>
+        Välj paket
+      </div>
+
+      <input type="hidden" id="package_type" name="package_type"
+             value="{{ form.package_type if form else 'single' }}">
+
+      <div class="package-grid">
+        <div class="pkg-card {% if not form or form.package_type != 'family' %}selected{% endif %}"
+             data-pkg="single" onclick="selectPackage('single')">
+          <div class="pkg-check">
+            <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="pkg-name">Enskild</div>
+          <div class="pkg-desc">1 adress</div>
+          <div class="pkg-price">149 kr<span>/år</span></div>
+        </div>
+        <div class="pkg-card {% if form and form.package_type == 'family' %}selected{% endif %}"
+             data-pkg="family" onclick="selectPackage('family')">
+          <div class="pkg-check">
+            <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="pkg-name">Familj</div>
+          <div class="pkg-desc">Upp till 5 adresser</div>
+          <div class="pkg-price">249 kr<span>/år</span></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Kommunikationsspråk -->
+      <div class="field-group" style="margin-bottom:0;">
+        <label>Kommunikationsspråk</label>
+        <input type="hidden" id="language" name="language"
+               value="{{ form.language if form else 'sv' }}">
+        <div class="lang-toggle">
+          <button type="button"
+                  class="lang-btn {% if not form or form.language != 'en' %}selected{% endif %}"
+                  data-lang="sv" onclick="selectLang('sv')">
+            Svenska
+          </button>
+          <button type="button"
+                  class="lang-btn {% if form and form.language == 'en' %}selected{% endif %}"
+                  data-lang="en" onclick="selectLang('en')">
+            English
+          </button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <button type="submit" class="btn submit-btn">
+        Registrera och fortsätt →
+      </button>
+
+    </form>
+  </div>
+
+  <div class="reg-footer">
+    Har du frågor? <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function selectPackage(pkg) {
+    document.getElementById('package_type').value = pkg;
+    document.querySelectorAll('.pkg-card').forEach(function(card) {
+      card.classList.toggle('selected', card.dataset.pkg === pkg);
+    });
+  }
+
+  function selectLang(lang) {
+    document.getElementById('language').value = lang;
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.classList.toggle('selected', btn.dataset.lang === lang);
+    });
+  }
+</script>
 {% endblock %}

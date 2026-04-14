@@ -2,16 +2,120 @@
 
 {% block title %}Logga in – Kramnet{% endblock %}
 
+{% block head %}
+<style>
+  .login-wrap {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .login-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 2.5rem 2.25rem;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .login-icon {
+    width: 56px;
+    height: 56px;
+    background: #E8F0F3;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .login-icon svg {
+    width: 28px;
+    height: 28px;
+    color: #00648F;
+  }
+
+  .login-card h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: .5rem;
+  }
+
+  .login-card .subtitle {
+    color: #6b7280;
+    font-size: .95rem;
+    line-height: 1.5;
+    margin-bottom: 1.75rem;
+  }
+
+  .field-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .field-group label {
+    display: block;
+    font-weight: 600;
+    font-size: .9rem;
+    color: #1a1a2e;
+    margin-bottom: .5rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    margin-top: .25rem;
+    border-radius: 12px;
+  }
+
+  .login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: .875rem;
+    color: #6b7280;
+  }
+  .login-footer a { color: #00648F; font-weight: 600; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .875rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+  }
+  .back-link:hover { color: #1a1a2e; text-decoration: none; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 420px; margin: 4rem auto;">
-  <div class="card">
-    <h1 style="font-size: 1.4rem; margin-bottom: .25rem;">Logga in</h1>
-    <p style="color: #666; margin-bottom: 1.5rem; font-size: .95rem;">
-      Ange din e-postadress så skickar vi en inloggningslänk.
-    </p>
+<div class="login-wrap">
+
+  <a href="https://broadview.se" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    broadview.se
+  </a>
+
+  <div class="login-card">
+    <div class="login-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00648F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+    </div>
+
+    <h1>Välkommen till Kramnet</h1>
+    <p class="subtitle">Ange din e-postadress så skickar vi en inloggningslänk.</p>
 
     {% if error == "invalid_token" %}
-    <div class="error" style="margin-bottom: 1rem;">
+    <div class="error" style="margin-bottom: 1.25rem;">
       Länken är ogiltig eller har gått ut. Begär en ny nedan.
     </div>
     {% endif %}
@@ -22,25 +126,26 @@
       hx-swap="outerHTML"
       hx-target="#login-form"
     >
-      <label for="email" style="display:block; font-weight:600; margin-bottom:.4rem;">
-        E-postadress
-      </label>
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="du@exempel.se"
-        required
-        autofocus
-      >
-      <button type="submit" class="btn" style="width:100%;">
+      <div class="field-group">
+        <label for="email">E-postadress</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="du@exempel.se"
+          required
+          autofocus
+        >
+      </div>
+      <button type="submit" class="btn submit-btn">
         Skicka inloggningslänk
       </button>
     </form>
   </div>
 
-  <p style="text-align:center; color:#888; font-size:.875rem; margin-top:1rem;">
-    Har du inget konto? <a href="mailto:kramnet@broadviewab.se">Kontakta oss</a>
-  </p>
+  <div class="login-footer">
+    Inget konto?&nbsp;<a href="mailto:kramnet@broadviewab.se">Kontakta oss</a>
+  </div>
+
 </div>
 {% endblock %}
