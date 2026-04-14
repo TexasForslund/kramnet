@@ -6,17 +6,18 @@
 <style>
   main { max-width: 100%; margin: 0; padding: 0; }
 
+  /* ── Page wrapper ──────────────────────────── */
   .reg-page {
     background: #E8F0F3;
     min-height: calc(100vh - 64px);
     padding: 2.5rem 1rem 4rem;
   }
-
   .reg-inner {
     max-width: 560px;
     margin: 0 auto;
   }
 
+  /* ── Back link (dynamic) ───────────────────── */
   .back-link {
     display: inline-flex;
     align-items: center;
@@ -25,50 +26,151 @@
     color: #6b7280;
     margin-bottom: 1.5rem;
     transition: color 0.15s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+    letter-spacing: -0.5px;
   }
   .back-link:hover { color: #00648F; text-decoration: none; }
 
+  /* ── Card ──────────────────────────────────── */
   .reg-card {
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.07);
     padding: 2.75rem 2.5rem;
+    overflow: hidden;
   }
 
+  /* ── Logo ──────────────────────────────────── */
   .reg-logo {
     display: block;
-    margin: 0 auto 1.75rem;
+    margin: 0 auto 2rem;
   }
 
-  .reg-card h1 {
-    font-size: 1.8rem;
+  /* ── Progress indicator ────────────────────── */
+  .progress-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-bottom: 2.25rem;
+    position: relative;
+  }
+  .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  /* Connecting line */
+  .progress-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: calc(50% + 16px);
+    right: calc(-50% + 16px);
+    height: 2px;
+    background: #d1dde3;
+    transition: background 0.3s;
+    z-index: 0;
+  }
+  .progress-step.done:not(:last-child)::after {
+    background: #00648F;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: .875rem;
+    font-weight: 700;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    position: relative;
+    z-index: 1;
+    /* upcoming */
+    background: #fff;
+    border: 2px solid #d1dde3;
+    color: #6b7280;
+  }
+  .progress-step.active .step-circle {
+    background: #00648F;
+    border-color: #00648F;
+    color: #fff;
+  }
+  .progress-step.done .step-circle {
+    background: #E8F0F3;
+    border-color: #00648F;
+    color: #00648F;
+  }
+  .step-label {
+    margin-top: .4rem;
+    font-size: .72rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-align: center;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .progress-step.active .step-label { color: #00648F; }
+  .progress-step.done   .step-label { color: #00648F; }
+
+  /* ── Step panels ───────────────────────────── */
+  .steps-viewport {
+    position: relative;
+    /* height is set dynamically by JS to avoid layout jumps */
+  }
+  .step-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(40px);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+  }
+  .step-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+    position: relative; /* take height from active panel */
+  }
+  .step-panel.exiting-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .step-panel.entering-right {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  .step-panel.entering-left {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  /* ── Step heading ──────────────────────────── */
+  .step-heading {
+    font-size: 1.45rem;
     font-weight: 700;
     color: #1a1a2e;
-    text-align: center;
-    margin-bottom: .5rem;
+    margin-bottom: .4rem;
   }
-
-  .reg-subtitle {
+  .step-sub {
     color: #6b7280;
-    font-size: .95rem;
-    text-align: center;
-    line-height: 1.55;
-    margin-bottom: 2.25rem;
+    font-size: .9rem;
+    line-height: 1.5;
+    margin-bottom: 1.75rem;
   }
 
-  /* ── Section headings ─────────────────── */
-  .section-label {
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 1rem;
-    margin-top: 2rem;
-  }
-  .section-label:first-of-type { margin-top: 0; }
-
-  /* ── Fields ───────────────────────────── */
+  /* ── Fields ────────────────────────────────── */
   .field-group {
     margin-bottom: 1.1rem;
   }
@@ -85,11 +187,8 @@
     font-weight: 400;
   }
 
-  /* ── Address pill ─────────────────────── */
-  .address-pill {
-    display: flex;
-    align-items: stretch;
-  }
+  /* ── Address pill ──────────────────────────── */
+  .address-pill { display: flex; align-items: stretch; }
   .address-prefix {
     flex: 1;
     min-width: 0;
@@ -115,125 +214,160 @@
     font-weight: 600;
     white-space: nowrap;
   }
-
   #address-status {
-    min-height: 1.25rem;
+    min-height: 1.4rem;
     font-size: .82rem;
     margin-top: .45rem;
   }
 
-  /* ── Package cards ────────────────────── */
+  /* ── Package cards ─────────────────────────── */
   .package-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: .75rem;
+    margin-bottom: 1.5rem;
   }
-
   .pkg-card {
     border: 2px solid #d1dde3;
     border-radius: 14px;
-    padding: 20px;
+    padding: 18px;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
     position: relative;
     user-select: none;
   }
   .pkg-card:hover { border-color: #00648F; }
-  .pkg-card.selected {
-    border-color: #00648F;
-    background: #f0f7fb;
-  }
-
+  .pkg-card.selected { border-color: #00648F; background: #f0f7fb; }
   .pkg-check {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 22px;
-    height: 22px;
-    background: #00648F;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.15s;
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px;
+    background: #00648F; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s;
   }
   .pkg-card.selected .pkg-check { opacity: 1; }
-  .pkg-check svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 2.5; fill: none; }
-
+  .pkg-check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 2.5; fill: none; }
   .pkg-name {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.05rem; font-weight: 700; color: #1a1a2e; margin-bottom: .2rem;
+  }
+  .pkg-desc { font-size: .82rem; color: #6b7280; margin-bottom: .65rem; }
+  .pkg-price {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.35rem; font-weight: 700; color: #00648F;
+  }
+  .pkg-price-unit { font-size: .78rem; font-weight: 400; color: #6b7280; font-family: 'Open Sans', sans-serif; }
+
+  /* ── Language pills ────────────────────────── */
+  .lang-pills { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .lang-pill {
+    flex: 1; padding: 11px;
+    border: 2px solid #d1dde3; border-radius: 10px;
+    background: #fff; font-family: 'Open Sans', sans-serif;
+    font-size: .9rem; font-weight: 600; color: #6b7280;
+    cursor: pointer; text-align: center;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .lang-pill.selected { border-color: #00648F; color: #00648F; background: #f0f7fb; }
+
+  /* ── Summary box ───────────────────────────── */
+  .summary-box {
+    background: #f0f7fb;
+    border: 1.5px solid #d1dde3;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .summary-address {
     font-family: 'Familjen Grotesk', sans-serif;
     font-size: 1.1rem;
     font-weight: 700;
     color: #1a1a2e;
-    margin-bottom: .25rem;
   }
-  .pkg-desc {
-    font-size: .85rem;
-    color: #6b7280;
-    margin-bottom: .75rem;
-  }
-  .pkg-price {
+  .summary-price {
     font-family: 'Familjen Grotesk', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #00648F;
-  }
-  .pkg-price-unit {
-    font-size: .8rem;
-    font-weight: 400;
-    color: #6b7280;
-    font-family: 'Open Sans', sans-serif;
+    white-space: nowrap;
   }
 
-  /* ── Language pills ───────────────────── */
-  .lang-pills {
+  /* ── Navigation ────────────────────────────── */
+  .step-nav {
     display: flex;
-    gap: .5rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.75rem;
+    gap: 1rem;
   }
-  .lang-pill {
-    flex: 1;
-    padding: 11px;
-    border: 2px solid #d1dde3;
-    border-radius: 10px;
-    background: #fff;
-    font-family: 'Open Sans', sans-serif;
-    font-size: .9rem;
-    font-weight: 600;
-    color: #6b7280;
-    cursor: pointer;
-    text-align: center;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
-  }
-  .lang-pill.selected {
-    border-color: #00648F;
-    color: #00648F;
-    background: #f0f7fb;
-  }
+  .step-nav-right { margin-left: auto; }
 
-  /* ── Divider ──────────────────────────── */
-  .reg-divider {
-    border: none;
-    border-top: 1.5px solid #E8F0F3;
-    margin: 1.75rem 0;
-  }
-
-  /* ── Submit ───────────────────────────── */
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    font-size: 1rem;
+  .btn-next {
+    padding: 14px 28px;
     border-radius: 12px;
     border: none;
     background: #00648F;
     color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
     font-weight: 600;
+    letter-spacing: -0.5px;
     cursor: pointer;
     transition: background 0.15s;
-    margin-top: .5rem;
+  }
+  .btn-next:hover { background: #004f72; }
+
+  .btn-submit {
+    padding: 15px 28px;
+    border-radius: 12px;
+    border: none;
+    background: #00648F;
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    cursor: pointer;
+    transition: background 0.15s;
   }
   .btn-submit:hover { background: #004f72; }
 
+  .btn-back-step {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .875rem;
+    color: #6b7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    letter-spacing: -0.5px;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .btn-back-step:hover { color: #00648F; }
+
+  /* ── Validation error ──────────────────────── */
+  .step-error {
+    display: none;
+    padding: .7rem 1rem;
+    background: #fdf0f0;
+    border-left: 4px solid #c0392b;
+    border-radius: 6px;
+    color: #c0392b;
+    font-size: .875rem;
+    margin-bottom: 1.25rem;
+  }
+  .step-error.visible { display: block; }
+
+  /* ── Divider ───────────────────────────────── */
+  .reg-divider { border: none; border-top: 1.5px solid #E8F0F3; margin: 1.5rem 0; }
+
+  /* ── Footer ────────────────────────────────── */
   .reg-footer {
     text-align: center;
     font-size: .85rem;
@@ -253,16 +387,18 @@
 <div class="reg-page">
   <div class="reg-inner">
 
-    <a href="https://broadview.se" class="back-link">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Tillbaka till broadview.se
-    </a>
+    <!-- Back link — content swapped by JS -->
+    <div id="back-nav" style="margin-bottom:1.5rem;">
+      <a href="https://broadview.se" class="back-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Tillbaka till broadview.se
+      </a>
+    </div>
 
     <div class="reg-card">
 
-      <svg class="reg-logo" width="140" viewBox="0 0 698 124" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kramnet">
+      <!-- Logo -->
+      <svg class="reg-logo" width="130" viewBox="0 0 698 124" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kramnet">
         <path d="M140.467 109.867V3.2H162.067V60.5333H168.467L190.867 29.8667H213.8V30.6667L186.467 67.2L217 109.067V109.867H191.8L168.467 76.5333H162.067V109.867H140.467Z" fill="black"/>
         <path d="M223.369 109.867V29.8667H243.102V44.5333H246.302C246.835 41.8667 247.813 39.3778 249.235 37.0667C250.747 34.6667 253.013 32.7556 256.035 31.3333C259.058 29.8222 263.102 29.0667 268.169 29.0667H272.435V48.5333H266.569C259.013 48.5333 253.502 50.4444 250.035 54.2667C246.658 58.0889 244.969 63.8222 244.969 71.4667V109.867H223.369Z" fill="black"/>
         <path d="M306.035 111.467C298.569 111.467 292.435 109.689 287.635 106.133C282.835 102.489 279.28 97.5111 276.969 91.2C274.658 84.8889 273.502 77.7333 273.502 69.7333C273.502 61.4667 274.658 54.2222 276.969 48C279.369 41.7778 282.969 36.9333 287.769 33.4667C292.569 30 298.613 28.2667 305.902 28.2667C311.502 28.2667 316.08 29.3778 319.635 31.6C323.28 33.7333 326.035 36.6222 327.902 40.2667H331.102V29.8667H351.102V109.867H331.102V99.4667H327.902C326.035 102.844 323.324 105.689 319.769 108C316.213 110.311 311.635 111.467 306.035 111.467ZM311.635 96.2667C317.058 96.2667 321.369 93.9111 324.569 89.2C327.858 84.4 329.502 77.9556 329.502 69.8667C329.502 61.6889 327.858 55.2444 324.569 50.5333C321.369 45.8222 317.058 43.4667 311.635 43.4667C306.747 43.4667 302.88 45.6889 300.035 50.1333C297.28 54.4889 295.902 61.0667 295.902 69.8667C295.902 78.6667 297.28 85.2889 300.035 89.7333C302.88 94.0889 306.747 96.2667 311.635 96.2667Z" fill="black"/>
@@ -273,130 +409,165 @@
         <path fill-rule="evenodd" clip-rule="evenodd" d="M64.1333 123.467C51.7778 123.467 40.7556 121.067 31.0667 116.267C21.3778 111.556 13.7778 104.667 8.26667 95.6C2.75556 86.4444 0 75.3333 0 62.2667C0 49.2889 2.71111 38.1778 8.13333 28.9333C13.6444 19.6 21.2889 12.4444 31.0667 7.46667C40.8444 2.48889 52.1778 0 65.0667 0C77.9556 0 88.8444 2.4 97.7333 7.2C106.622 11.9111 113.333 18.4 117.867 26.6667C122.489 34.8444 124.8 44.0889 124.8 54.4C124.8 62.5778 123.422 69.6889 120.667 75.7333C118 81.7778 114.4 86.4444 109.867 89.7333C105.333 93.0222 100.267 94.6667 94.6667 94.6667C89.5111 94.6667 85.6 93.4667 82.9333 91.0667C80.3556 88.6667 78.5333 86.3111 77.4667 84H74.2667C71.9556 87.2 69.3333 89.7778 66.4 91.7333C63.4667 93.6889 59.6889 94.6667 55.0667 94.6667C49.5556 94.6667 44.9778 93.2444 41.3333 90.4C37.6889 87.5556 34.9333 83.6444 33.0667 78.6667C31.2889 73.6 30.4 67.8667 30.4 61.4667C30.4 51.6889 32.4889 43.8222 36.6667 37.8667C40.8444 31.8222 47.0667 28.8 55.3333 28.8C59.4222 28.8 62.8444 29.6444 65.6 31.3333C68.3556 33.0222 70.4889 35.2889 72 38.1333H75.2V29.8667H90.4V73.8667C90.4 76.3556 90.8 78.4 91.6 80C92.4 81.6 94.0444 82.4 96.5333 82.4C99.5556 82.4 102.133 81.2444 104.267 78.9333C106.489 76.6222 108.178 73.4667 109.333 69.4667C110.578 65.4667 111.2 60.9333 111.2 55.8667C111.2 41.8222 107.111 31.0222 98.9333 23.4667C90.7556 15.8222 79.4667 12 65.0667 12C54.4 12 45.2889 14.0444 37.7333 18.1333C30.1778 22.2222 24.4 28 20.4 35.4667C16.4 42.8444 14.4 51.6 14.4 61.7333C14.4 71.7778 16.3556 80.5333 20.2667 88C24.2667 95.4667 29.9556 101.244 37.3333 105.333C44.8 109.422 53.6889 111.467 64 111.467C71.1111 111.467 77.8667 110.533 84.2667 108.667C90.7556 106.889 96.1333 104.889 100.4 102.667H101.2V115.467C97.1111 117.511 91.8222 119.333 85.3333 120.933C78.9333 122.622 71.8667 123.467 64.1333 123.467ZM69.7333 76.9333C67.2444 80.5778 64.0889 82.4 60.2667 82.4C56.8 82.4 54 80.6667 51.8667 77.2C49.8222 73.7333 48.8 68.5333 48.8 61.6C48.8 54.5778 49.8222 49.3778 51.8667 46C54 42.5333 56.8 40.8 60.2667 40.8C64.0889 40.8 67.2444 42.6667 69.7333 46.4C72.2222 50.0444 73.4667 55.1111 73.4667 61.6C73.4667 68.0889 72.2222 73.2 69.7333 76.9333Z" fill="#00648F"/>
       </svg>
 
-      <h1>Skaffa din @kramnet.se-adress</h1>
-      <p class="reg-subtitle">En personlig e-postadress på kramnet.se. Välj prefix och betala via Swish.</p>
+      <!-- Progress indicator -->
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-step active" id="prog-1">
+          <div class="step-circle" id="prog-circle-1">1</div>
+          <div class="step-label">Uppgifter</div>
+        </div>
+        <div class="progress-step" id="prog-2">
+          <div class="step-circle" id="prog-circle-2">2</div>
+          <div class="step-label">Adress</div>
+        </div>
+        <div class="progress-step" id="prog-3">
+          <div class="step-circle" id="prog-circle-3">3</div>
+          <div class="step-label">Paket</div>
+        </div>
+      </div>
 
       {% if error %}
-      <div class="error" style="margin-bottom:1.5rem;">{{ error }}</div>
+      <div class="error" style="margin-bottom:1.25rem;">{{ error }}</div>
       {% endif %}
 
+      <!-- Form wraps all steps -->
       <form method="post" action="/register" id="reg-form">
+        <input type="hidden" id="package_type" name="package_type" value="{{ form.package_type if form else 'single' }}">
+        <input type="hidden" id="language"     name="language"     value="{{ form.language if form else 'sv' }}">
 
-        <!-- DINA UPPGIFTER -->
-        <p class="section-label">Dina uppgifter</p>
+        <div class="steps-viewport" id="steps-viewport">
 
-        <div class="field-group">
-          <label for="name">Ditt namn</label>
-          <input type="text" id="name" name="name"
-                 value="{{ form.name if form else '' }}"
-                 placeholder="Anna Andersson" required>
-        </div>
+          <!-- ══ Step 1: Dina uppgifter ══ -->
+          <div class="step-panel active" data-step="1">
+            <h2 class="step-heading">Dina uppgifter</h2>
+            <p class="step-sub">Vi behöver lite information om dig för kvitto och inloggning.</p>
 
-        <div class="field-group">
-          <label for="contact_email">
-            Din nuvarande e-postadress
-            <span class="field-hint">(för kvitto och inloggning)</span>
-          </label>
-          <input type="email" id="contact_email" name="contact_email"
-                 value="{{ form.contact_email if form else '' }}"
-                 placeholder="anna@example.com" required>
-        </div>
+            <div class="step-error" id="err-1"></div>
 
-        <div class="field-group">
-          <label for="swish_phone">Mobilnummer för Swish</label>
-          <input type="tel" id="swish_phone" name="swish_phone"
-                 value="{{ form.swish_phone if form else '' }}"
-                 placeholder="07XXXXXXXX" required>
-        </div>
-
-        <hr class="reg-divider">
-
-        <!-- DIN ADRESS -->
-        <p class="section-label">Din adress</p>
-
-        <div class="field-group">
-          <label for="desired_prefix">Önskad e-postadress</label>
-          <div class="address-pill">
-            <input class="address-prefix"
-                   type="text" id="desired_prefix" name="desired_prefix"
-                   value="{{ form.desired_prefix if form else '' }}"
-                   placeholder="anna"
-                   pattern="[a-z0-9.\-]+"
-                   hx-get="/api/check-address-fragment"
-                   hx-target="#address-status"
-                   hx-trigger="keyup changed delay:400ms"
-                   hx-include="#desired_prefix"
-                   required>
-            <span class="address-suffix-label">@kramnet.se</span>
-          </div>
-          <div id="address-status"></div>
-          <p style="font-size:.78rem;color:#6b7280;margin-top:.4rem;">
-            Endast
-            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">a–z</code>
-            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">0–9</code>
-            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">.</code>
-            <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">-</code> tillåtna.
-          </p>
-        </div>
-
-        <hr class="reg-divider">
-
-        <!-- VÄLJ PAKET -->
-        <p class="section-label">Välj paket</p>
-
-        <input type="hidden" id="package_type" name="package_type"
-               value="{{ form.package_type if form else 'single' }}">
-
-        <div class="package-grid" style="margin-bottom:0;">
-          <div class="pkg-card {% if not form or form.package_type != 'family' %}selected{% endif %}"
-               data-pkg="single" onclick="selectPackage('single')">
-            <div class="pkg-check">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="field-group">
+              <label for="name">Ditt namn</label>
+              <input type="text" id="name" name="name"
+                     value="{{ form.name if form else '' }}"
+                     placeholder="Anna Andersson" autocomplete="name">
             </div>
-            <div class="pkg-name">Enskild</div>
-            <div class="pkg-desc">1 adress</div>
-            <div class="pkg-price">149 kr<span class="pkg-price-unit">/år</span></div>
-          </div>
-          <div class="pkg-card {% if form and form.package_type == 'family' %}selected{% endif %}"
-               data-pkg="family" onclick="selectPackage('family')">
-            <div class="pkg-check">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="field-group">
+              <label for="contact_email">
+                Din nuvarande e-postadress
+                <span class="field-hint">(för kvitto och inloggning)</span>
+              </label>
+              <input type="email" id="contact_email" name="contact_email"
+                     value="{{ form.contact_email if form else '' }}"
+                     placeholder="anna@example.com" autocomplete="email">
             </div>
-            <div class="pkg-name">Familj</div>
-            <div class="pkg-desc">Upp till 5 adresser</div>
-            <div class="pkg-price">249 kr<span class="pkg-price-unit">/år</span></div>
+            <div class="field-group">
+              <label for="swish_phone">Mobilnummer för Swish</label>
+              <input type="tel" id="swish_phone" name="swish_phone"
+                     value="{{ form.swish_phone if form else '' }}"
+                     placeholder="07XXXXXXXX" autocomplete="tel">
+            </div>
+
+            <div class="step-nav">
+              <div><!-- no back on step 1 --></div>
+              <button type="button" class="btn-next" onclick="goNext(1)">
+                Nästa →
+              </button>
+            </div>
           </div>
-        </div>
 
-        <hr class="reg-divider">
+          <!-- ══ Step 2: Din adress ══ -->
+          <div class="step-panel" data-step="2">
+            <h2 class="step-heading">Din adress</h2>
+            <p class="step-sub">Välj ett prefix — din adress blir <strong>prefix@kramnet.se</strong>.</p>
 
-        <!-- SPRÅK -->
-        <p class="section-label">Kommunikationsspråk</p>
+            <div class="step-error" id="err-2"></div>
 
-        <input type="hidden" id="language" name="language"
-               value="{{ form.language if form else 'sv' }}">
+            <div class="field-group">
+              <label for="desired_prefix">Önskad e-postadress</label>
+              <div class="address-pill">
+                <input class="address-prefix"
+                       type="text" id="desired_prefix" name="desired_prefix"
+                       value="{{ form.desired_prefix if form else '' }}"
+                       placeholder="anna"
+                       pattern="[a-z0-9.\-]+"
+                       hx-get="/api/check-address-fragment"
+                       hx-target="#address-status"
+                       hx-trigger="keyup changed delay:400ms"
+                       hx-include="#desired_prefix">
+                <span class="address-suffix-label">@kramnet.se</span>
+              </div>
+              <div id="address-status"></div>
+              <p style="font-size:.78rem;color:#6b7280;margin-top:.45rem;">
+                Endast
+                <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">a–z</code>
+                <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">0–9</code>
+                <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">.</code>
+                <code style="background:#E8F0F3;padding:1px 5px;border-radius:4px;">-</code> tillåtna.
+              </p>
+            </div>
 
-        <div class="lang-pills">
-          <button type="button"
-                  class="lang-pill {% if not form or form.language != 'en' %}selected{% endif %}"
-                  data-lang="sv" onclick="selectLang('sv')">
-            Svenska
-          </button>
-          <button type="button"
-                  class="lang-pill {% if form and form.language == 'en' %}selected{% endif %}"
-                  data-lang="en" onclick="selectLang('en')">
-            English
-          </button>
-        </div>
+            <div class="step-nav">
+              <button type="button" class="btn-back-step" onclick="goBack(2)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Tillbaka
+              </button>
+              <button type="button" class="btn-next" onclick="goNext(2)">
+                Nästa →
+              </button>
+            </div>
+          </div>
 
-        <hr class="reg-divider">
+          <!-- ══ Step 3: Välj paket & bekräfta ══ -->
+          <div class="step-panel" data-step="3">
+            <h2 class="step-heading">Välj paket</h2>
+            <p class="step-sub">Betalning sker via Swish efter registrering.</p>
 
-        <button type="submit" class="btn-submit">
-          Registrera och fortsätt →
-        </button>
+            <div class="step-error" id="err-3"></div>
 
+            <div class="package-grid">
+              <div class="pkg-card {% if not form or form.package_type != 'family' %}selected{% endif %}"
+                   data-pkg="single" onclick="selectPackage('single')">
+                <div class="pkg-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pkg-name">Enskild</div>
+                <div class="pkg-desc">1 adress</div>
+                <div class="pkg-price">149 kr<span class="pkg-price-unit">/år</span></div>
+              </div>
+              <div class="pkg-card {% if form and form.package_type == 'family' %}selected{% endif %}"
+                   data-pkg="family" onclick="selectPackage('family')">
+                <div class="pkg-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pkg-name">Familj</div>
+                <div class="pkg-desc">Upp till 5 adresser</div>
+                <div class="pkg-price">249 kr<span class="pkg-price-unit">/år</span></div>
+              </div>
+            </div>
+
+            <div class="lang-pills">
+              <button type="button" class="lang-pill {% if not form or form.language != 'en' %}selected{% endif %}"
+                      data-lang="sv" onclick="selectLang('sv')">Svenska</button>
+              <button type="button" class="lang-pill {% if form and form.language == 'en' %}selected{% endif %}"
+                      data-lang="en" onclick="selectLang('en')">English</button>
+            </div>
+
+            <div class="reg-divider"></div>
+
+            <!-- Summary -->
+            <div class="summary-box">
+              <div class="summary-address" id="summary-address">—</div>
+              <div class="summary-price"   id="summary-price">—</div>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn-back-step" onclick="goBack(3)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Tillbaka
+              </button>
+              <button type="submit" class="btn-submit" onclick="return validateStep3()">
+                Registrera och fortsätt →
+              </button>
+            </div>
+          </div>
+
+        </div><!-- steps-viewport -->
       </form>
-    </div>
+    </div><!-- reg-card -->
 
     <div class="reg-footer">
       Har du frågor? <a href="mailto:kramnet@broadviewab.se">kramnet@broadviewab.se</a>
@@ -408,11 +579,189 @@
 
 {% block scripts %}
 <script>
+  /* ── State ─────────────────────────────────────── */
+  var currentStep = 1;
+  var addressOk   = false;  // set by htmx afterSwap listener
+
+  /* ── Address availability tracking ────────────── */
+  document.addEventListener('htmx:afterSwap', function(e) {
+    if (e.detail.target && e.detail.target.id === 'address-status') {
+      var txt = e.detail.target.textContent || '';
+      // Server returns "✓ ... är ledig" (green) or "✗ ... är redan tagen" / invalid (red)
+      addressOk = txt.indexOf('ledig') !== -1;
+    }
+  });
+
+  /* ── Progress indicator ────────────────────────── */
+  var CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function updateProgress(step) {
+    for (var i = 1; i <= 3; i++) {
+      var el     = document.getElementById('prog-' + i);
+      var circle = document.getElementById('prog-circle-' + i);
+      el.classList.remove('active', 'done');
+      if (i < step) {
+        el.classList.add('done');
+        circle.innerHTML = CHECK_SVG;
+      } else if (i === step) {
+        el.classList.add('active');
+        circle.innerHTML = i;
+      } else {
+        circle.innerHTML = i;
+      }
+    }
+  }
+
+  /* ── Back nav link ─────────────────────────────── */
+  function updateBackNav(step) {
+    var nav = document.getElementById('back-nav');
+    if (step === 1) {
+      nav.innerHTML = '<a href="https://broadview.se" class="back-link">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+        + 'Tillbaka till broadview.se</a>';
+    } else {
+      nav.innerHTML = '';  // back button is inside the card on steps 2-3
+    }
+  }
+
+  /* ── Summary ───────────────────────────────────── */
+  var PRICES = { single: '149 kr/år', family: '249 kr/år' };
+
+  function updateSummary() {
+    var prefix  = (document.getElementById('desired_prefix').value || '').trim();
+    var pkg     = document.getElementById('package_type').value;
+    document.getElementById('summary-address').textContent =
+      prefix ? prefix + '@kramnet.se' : '—';
+    document.getElementById('summary-price').textContent =
+      PRICES[pkg] || '—';
+  }
+
+  /* ── Validation ────────────────────────────────── */
+  function showError(step, msg) {
+    var el = document.getElementById('err-' + step);
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+  function clearError(step) {
+    var el = document.getElementById('err-' + step);
+    el.textContent = '';
+    el.classList.remove('visible');
+  }
+
+  function validateStep1() {
+    clearError(1);
+    var name  = document.getElementById('name').value.trim();
+    var email = document.getElementById('contact_email').value.trim();
+    var phone = document.getElementById('swish_phone').value.trim().replace(/\s/g,'');
+    if (!name) {
+      showError(1, 'Fyll i ditt namn.');
+      document.getElementById('name').focus();
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError(1, 'Ange en giltig e-postadress.');
+      document.getElementById('contact_email').focus();
+      return false;
+    }
+    if (!/^[0-9]{10}$/.test(phone)) {
+      showError(1, 'Mobilnummer ska vara 10 siffror, t.ex. 0701234567.');
+      document.getElementById('swish_phone').focus();
+      return false;
+    }
+    return true;
+  }
+
+  function validateStep2() {
+    clearError(2);
+    var prefix = document.getElementById('desired_prefix').value.trim();
+    if (!prefix) {
+      showError(2, 'Ange ett prefix för din adress.');
+      document.getElementById('desired_prefix').focus();
+      return false;
+    }
+    if (!/^[a-z0-9.\-]+$/.test(prefix)) {
+      showError(2, 'Prefix får bara innehålla a-z, 0-9, punkt och bindestreck.');
+      document.getElementById('desired_prefix').focus();
+      return false;
+    }
+    if (!addressOk) {
+      showError(2, 'Adressen är tagen eller ej kontrollerad — vänta på grönt bockmarkering.');
+      return false;
+    }
+    return true;
+  }
+
+  function validateStep3() {
+    clearError(3);
+    var pkg = document.getElementById('package_type').value;
+    if (!pkg) {
+      showError(3, 'Välj ett paket för att fortsätta.');
+      return false;
+    }
+    return true;
+  }
+
+  /* ── Animation ─────────────────────────────────── */
+  function animateOut(panel, direction) {
+    // direction: 'left' = panel exits to left (going forward)
+    //            'right' = panel exits to right (going back)
+    panel.classList.remove('active');
+    panel.classList.add(direction === 'left' ? 'exiting-left' : 'exiting-right');
+    // remove after transition
+    setTimeout(function() {
+      panel.classList.remove('exiting-left', 'exiting-right');
+      panel.style.display = 'none';
+    }, 220);
+  }
+
+  function animateIn(panel, direction) {
+    // direction: 'right' = panel enters from right (going forward)
+    //            'left'  = panel enters from left (going back)
+    panel.style.display = '';
+    panel.classList.remove('active');
+    panel.classList.add(direction === 'right' ? 'entering-right' : 'entering-left');
+    // force reflow
+    panel.getBoundingClientRect();
+    requestAnimationFrame(function() {
+      panel.classList.remove('entering-right', 'entering-left');
+      panel.classList.add('active');
+    });
+  }
+
+  function goTo(newStep, direction) {
+    var oldPanel = document.querySelector('.step-panel[data-step="' + currentStep + '"]');
+    var newPanel = document.querySelector('.step-panel[data-step="' + newStep + '"]');
+    animateOut(oldPanel, direction === 'forward' ? 'left' : 'right');
+    setTimeout(function() {
+      animateIn(newPanel, direction === 'forward' ? 'right' : 'left');
+    }, 50);
+    currentStep = newStep;
+    updateProgress(newStep);
+    updateBackNav(newStep);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Navigation ────────────────────────────────── */
+  function goNext(fromStep) {
+    var ok = false;
+    if (fromStep === 1) ok = validateStep1();
+    if (fromStep === 2) ok = validateStep2();
+    if (!ok) return;
+    if (fromStep === 2) updateSummary();
+    goTo(fromStep + 1, 'forward');
+  }
+
+  function goBack(fromStep) {
+    goTo(fromStep - 1, 'back');
+  }
+
+  /* ── Package / lang helpers ────────────────────── */
   function selectPackage(pkg) {
     document.getElementById('package_type').value = pkg;
     document.querySelectorAll('.pkg-card').forEach(function(c) {
       c.classList.toggle('selected', c.dataset.pkg === pkg);
     });
+    updateSummary();
   }
 
   function selectLang(lang) {
@@ -421,5 +770,17 @@
       b.classList.toggle('selected', b.dataset.lang === lang);
     });
   }
+
+  /* ── Init ──────────────────────────────────────── */
+  // Hide steps 2 and 3 on page load (they start as position:absolute, but
+  // we also hide them so they don't influence tab order)
+  document.querySelectorAll('.step-panel:not(.active)').forEach(function(p) {
+    p.style.display = 'none';
+  });
+
+  // If server returned an error, try to restore correct step
+  {% if error %}
+  // Form was submitted (step 3), show all fields accessible
+  {% endif %}
 </script>
 {% endblock %}
