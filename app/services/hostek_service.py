@@ -13,6 +13,15 @@ class HostekAPIError(Exception):
 
 
 def _parse_mailbox(elem: ET.Element) -> dict:
+    """Parse an <email_mailbox> element into a dict.
+
+    Actual API structure (confirmed 2026-04):
+      <email_mailbox>
+        <id>, <recipient>, <username>, <password>,
+        <suspended>, <vacation_active>, <pending>,
+        <created_at>, <updated_at>
+      </email_mailbox>
+    """
     def text(tag: str) -> str:
         child = elem.find(tag)
         if child is None:
@@ -23,11 +32,11 @@ def _parse_mailbox(elem: ET.Element) -> dict:
         "id": text("id"),
         "recipient": text("recipient"),
         "username": text("username"),
-        "first_name": text("first_name"),
-        "last_name": text("last_name"),
-        "display_name": text("display_name"),
+        "suspended": text("suspended"),
         "pending": text("pending"),
         "vacation_active": text("vacation_active"),
+        "created_at": text("created_at"),
+        "updated_at": text("updated_at"),
     }
 
 
@@ -72,7 +81,12 @@ class HostekService:
 
         try:
             root = ET.fromstring(resp.text)
-            return _parse_mailbox(root)
+            # Single-mailbox response: root is <email_mailbox>
+            elem = root if root.tag == "email_mailbox" else root.find("email_mailbox")
+            if elem is None:
+                logger.warning("Hostek get_mailbox: no <email_mailbox> in response: %r", resp.text[:300])
+                return None
+            return _parse_mailbox(elem)
         except ET.ParseError as exc:
             logger.error("Hostek XML parse error (get_mailbox): %s", exc)
             raise HostekAPIError(f"XML parse error: {exc}") from exc
@@ -101,24 +115,35 @@ class HostekService:
 
         try:
             root = ET.fromstring(resp.text)
-            mailbox = root.find(".//mailbox")
-            if mailbox is None:
-                mailbox = root if root.tag == "mailbox" else None
-            if mailbox is None:
+            # List response: <email_mailboxes><email_mailbox>…</email_mailbox></email_mailboxes>
+            # Single response: <email_mailbox>…</email_mailbox>
+            if root.tag == "email_mailbox":
+                return _parse_mailbox(root)
+            elem = root.find("email_mailbox")
+            if elem is None:
                 return None
-            return _parse_mailbox(mailbox)
+            return _parse_mailbox(elem)
         except ET.ParseError as exc:
             logger.error("Hostek XML parse error (find_mailbox_by_email): %s", exc)
             raise HostekAPIError(f"XML parse error: {exc}") from exc
 
     async def list_mailboxes(self, offset: int = 0) -> list[dict]:
         url = self._mailbox_url()
+        logger.info(
+            "Hostek list_mailboxes: GET %s  (offset=%s, user=%r)",
+            url, offset, self._auth[0],
+        )
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.get(url, params={"offset": offset}, auth=self._auth)
         except httpx.RequestError as exc:
             logger.error("Hostek connection error (list_mailboxes): %s", exc)
             raise HostekAPIError(f"Connection error: {exc}") from exc
+
+        logger.info(
+            "Hostek list_mailboxes: HTTP %s  body_preview=%r",
+            resp.status_code, resp.text[:500],
+        )
 
         if 400 <= resp.status_code < 500:
             logger.warning(
@@ -135,12 +160,16 @@ class HostekService:
 
         try:
             root = ET.fromstring(resp.text)
-            mailboxes = root.findall(".//mailbox")
-            if not mailboxes and root.tag == "mailbox":
+            logger.debug("Hostek list_mailboxes: root tag=%r, children=%d", root.tag, len(list(root)))
+            # Expected: <email_mailboxes type="array"><email_mailbox>…
+            mailboxes = root.findall("email_mailbox")
+            # Fallback: single item returned as root element
+            if not mailboxes and root.tag == "email_mailbox":
                 mailboxes = [root]
+            logger.info("Hostek list_mailboxes: found %d mailbox(es)", len(mailboxes))
             return [_parse_mailbox(m) for m in mailboxes]
         except ET.ParseError as exc:
-            logger.error("Hostek XML parse error (list_mailboxes): %s", exc)
+            logger.error("Hostek XML parse error (list_mailboxes): %s  raw=%r", exc, resp.text[:500])
             raise HostekAPIError(f"XML parse error: {exc}") from exc
 
     # ─── WRITE stubs ──────────────────────────────────────────────────────────

@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import httpx
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -493,7 +494,6 @@ async def admin_reject_payment(
     body = body_sv if lang == "sv" else body_en
     subject = subject_sv if lang == "sv" else subject_en
 
-    import httpx
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             await client.post(
@@ -547,6 +547,43 @@ async def admin_hostek_test(
             "no_credentials": False,
         },
     )
+
+
+@router.get("/admin/hostek-debug")
+async def admin_hostek_debug(
+    _: None = Depends(require_admin),
+):
+    """Rå debug-anrop mot Hostek API – returnerar statuskod + råsvar som plaintext."""
+    import base64
+
+    cid = settings.hostek_customer_id
+    did = settings.hostek_domain_id
+    base = settings.hostek_api_url.rstrip("/")
+    url = f"{base}/customers/{cid}/domains/{did}/email_mailboxes"
+
+    user = settings.hostek_api_user
+    password = settings.hostek_api_password
+    token = base64.b64encode(f"{user}:{password}".encode()).decode()
+
+    lines = [
+        f"URL: {url}",
+        f"Auth user: {user!r}",
+        f"Authorization: Basic {token[:10]}… (trunkerad)",
+        "",
+    ]
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(url, auth=(user, password))
+        lines.append(f"HTTP Status: {resp.status_code}")
+        lines.append(f"Content-Type: {resp.headers.get('content-type', '(saknas)')}")
+        lines.append("")
+        lines.append("--- RAW BODY (första 2000 tecken) ---")
+        lines.append(resp.text[:2000])
+    except Exception as exc:
+        lines.append(f"EXCEPTION: {type(exc).__name__}: {exc}")
+
+    return PlainTextResponse("\n".join(lines))
 
 
 @router.get("/admin/migration")
