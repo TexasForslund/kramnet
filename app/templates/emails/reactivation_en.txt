@@ -3,7 +3,7 @@ Hi {{ customer.name }},
 Good news! Your Kramnet account has been reactivated.
 
   Email address: {{ email_account.address }}
-  Valid until:   {{ email_account.expires_at.strftime("%Y-%m-%d") }}
+  Valid until:   {% if email_account.expires_at %}{{ email_account.expires_at.strftime("%Y-%m-%d") }}{% else %}—{% endif %}
 
 You can access your account at:
 https://kramnet.se

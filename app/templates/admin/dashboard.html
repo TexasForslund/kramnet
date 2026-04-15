@@ -53,7 +53,7 @@
         <td style="color:#666; font-size:.875rem;">{{ log.performed_by or "—" }}</td>
         <td style="font-size:.78rem; color:#aaa; font-family:monospace;">
           {% if log.email_account_id %}
-            {{ str(log.email_account_id)[:8] }}…
+            {{ (log.email_account_id | string)[:8] }}…
           {% else %}
             —
           {% endif %}
