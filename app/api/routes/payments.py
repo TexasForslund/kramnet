@@ -2,12 +2,11 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_customer
 from app.models.audit_log import AuditLog
@@ -83,21 +82,7 @@ async def pay_page(
         await db.commit()
         await db.refresh(payment)
 
-    # Kort referenskod: första 8 tecken av payment-ID (versaler)
-    payment_ref = str(payment.id).replace("-", "")[:8].upper()
-
-    return templates.TemplateResponse(
-        "payments/pay.html",
-        {
-            "request": request,
-            "customer": customer,
-            "account": account,
-            "payment": payment,
-            "payment_ref": payment_ref,
-            "amount_kr": payment.amount_ore // 100,
-            "swish_payee_number": settings.swish_payee_number,
-        },
-    )
+    return RedirectResponse(f"/checkout?order_id={payment.id}", status_code=303)
 
 
 # ─── POST payment-sent ────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.api.routes import accounts, admin, customers, payments
 from app.api.routes import auth as auth_router
+from app.api.routes import checkout as checkout_router
 from app.api.routes import portal as portal_router
 from app.api.routes import register as register_router
 from app.core.config import settings
@@ -44,6 +45,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(auth_router.router, prefix="/auth", tags=["auth"])
 app.include_router(portal_router.router, tags=["portal"])
 app.include_router(register_router.router, tags=["register"])
+app.include_router(checkout_router.router, tags=["checkout"])
 app.include_router(payments.router, tags=["payments"])  # portal payment pages
 app.include_router(admin.router, tags=["admin"])
 

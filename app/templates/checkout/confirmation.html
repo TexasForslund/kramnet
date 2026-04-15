@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Betalning bekräftad – Kramnet{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 3rem auto; text-align:center;">
+  <div style="font-size:4rem; color:#27ae60; margin-bottom:1rem;">&#10003;</div>
+
+  <h1 style="font-size:1.75rem; margin-bottom:.5rem;">Tack för din betalning!</h1>
+  <p style="color:#555; font-size:1rem; margin-bottom:2rem;">
+    Din e-postadress <strong>{{ account.address }}</strong> aktiveras inom kort.
+  </p>
+
+  <div class="card" style="text-align:left; background:#f8f9ff; font-size:.9rem; margin-bottom:2rem;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;">
+      <span style="color:#888;">E-postadress</span>
+      <strong>{{ account.address }}</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;">
+      <span style="color:#888;">Status</span>
+      <span class="badge badge-active">Betald</span>
+    </div>
+  </div>
+
+  <a href="/portal/dashboard" class="btn-primary" style="display:inline-block;padding:12px 28px;text-decoration:none;">
+    Logga in på kundportalen &rarr;
+  </a>
+</div>
+{% endblock %}

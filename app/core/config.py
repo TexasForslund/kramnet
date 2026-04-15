@@ -15,11 +15,10 @@ class Settings(BaseSettings):
     secret_key: str
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 
-    # Swish
-    swish_merchant_id: str
-    swish_cert_path: str
-    swish_key_path: str
-    swish_payee_number: str = "0700000000"  # Swish-nummer kunder betalar till
+    # Klarna
+    klarna_api_user: str = ""
+    klarna_api_password: str = ""
+    klarna_api_url: str = "https://api.klarna.com"
 
     # Hostek
     hostek_api_url: str = "https://partner.ilait.se/api"

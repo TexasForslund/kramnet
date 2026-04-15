@@ -40,8 +40,8 @@ class Payment(Base):
         index=True,
     )
     amount_ore: Mapped[int] = mapped_column(Integer, nullable=False)
-    swish_reference: Mapped[str | None] = mapped_column(
-        String(100), unique=True, nullable=True
+    klarna_order_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
     )
     payment_type: Mapped[PaymentType] = mapped_column(
         Enum(PaymentType, name="paymenttype"), nullable=False

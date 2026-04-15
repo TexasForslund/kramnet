@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -84,7 +84,7 @@ async def register_submit(
     name: str = Form(...),
     contact_email: str = Form(...),
     desired_prefix: str = Form(...),
-    swish_phone: str = Form(...),
+    swish_phone: str = Form(default=""),
     package_type: str = Form(...),
     language: str = Form("sv"),
     db: AsyncSession = Depends(get_db),
@@ -102,7 +102,6 @@ async def register_submit(
                     "name": name,
                     "contact_email": contact_email,
                     "desired_prefix": desired_prefix,
-                    "swish_phone": swish_phone,
                     "package_type": package_type,
                     "language": language,
                 },
@@ -131,7 +130,6 @@ async def register_submit(
                     "name": name,
                     "contact_email": contact_email,
                     "desired_prefix": desired_prefix,
-                    "swish_phone": swish_phone,
                     "package_type": package_type,
                     "language": language,
                 },
@@ -199,13 +197,4 @@ async def register_submit(
 
     await db.commit()
 
-    return templates.TemplateResponse(
-        "register/pending.html",
-        {
-            "request": request,
-            "customer": customer,
-            "account": account,
-            "payment": payment,
-            "amount_kr": amount_ore // 100,
-        },
-    )
+    return RedirectResponse(f"/checkout?order_id={payment.id}", status_code=303)
