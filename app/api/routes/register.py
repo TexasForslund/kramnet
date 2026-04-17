@@ -118,6 +118,27 @@ async def register_submit(
 
     address = f"{desired_prefix}@kramnet.se"
 
+    # Kontrollera att contact_email inte redan finns
+    existing_customer = await db.execute(
+        select(Customer).where(Customer.contact_email == contact_email.strip().lower())
+    )
+    if existing_customer.scalar_one_or_none() is not None:
+        return templates.TemplateResponse(
+            "register/index.html",
+            {
+                "request": request,
+                "error": 'Den här e-postadressen är redan registrerad. <a href="/auth/login">Vill du logga in istället?</a>',
+                "form": {
+                    "name": name,
+                    "contact_email": contact_email,
+                    "desired_prefix": desired_prefix,
+                    "package_type": package_type,
+                    "language": language,
+                },
+            },
+            status_code=409,
+        )
+
     # Kontrollera att adressen inte är tagen
     taken = await db.execute(
         select(EmailAccount).where(EmailAccount.address == address)
