@@ -426,7 +426,7 @@
       </div>
 
       {% if error %}
-      <div class="error" style="margin-bottom:1.25rem;">{{ error }}</div>
+      <div class="error" style="margin-bottom:1.25rem;">{{ error | safe }}</div>
       {% endif %}
 
       <!-- Form wraps all steps -->
