@@ -27,8 +27,13 @@ class Settings(BaseSettings):
     hostek_customer_id: str = ""
     hostek_domain_id: str = "127978"
 
-    # Postmark
-    postmark_api_key: str
+    # SMTP
+    smtp_host: str = "bulkmail.ilait.se"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = "noreply@kramnetkund.se"
+    smtp_from_name: str = "Kramnet"
 
     # Admin
     admin_email: str = "kramnet@broadviewab.se"

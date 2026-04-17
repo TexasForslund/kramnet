@@ -494,30 +494,40 @@ async def admin_reject_payment(
     body = body_sv if lang == "sv" else body_en
     subject = subject_sv if lang == "sv" else subject_en
 
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            await client.post(
-                "https://api.postmarkapp.com/email",
-                json={
-                    "From": "Kramnet <noreply@kramnet.se>",
-                    "To": customer.contact_email,
-                    "Subject": subject,
-                    "TextBody": body,
-                    "MessageStream": "outbound",
-                },
-                headers={
-                    "X-Postmark-Server-Token": settings.postmark_api_key,
-                    "Accept": "application/json",
-                },
-            )
-    except Exception:
-        import logging
-        logging.getLogger(__name__).exception("Failed to send payment rejection email")
+    await _email_service._send(
+        to=customer.contact_email,
+        subject=subject,
+        body=body,
+        db=db,
+        audit_customer_id=customer.id,
+        audit_account_id=account.id,
+    )
 
     await db.commit()
 
     # HTMX: ta bort raden
     return HTMLResponse(f'<div id="pv-row-{payment_id}" style="display:none;"></div>')
+
+
+@router.get("/admin/test-email", response_class=PlainTextResponse)
+async def admin_test_email(
+    _: None = Depends(require_admin),
+):
+    ok = await _email_service._send(
+        to=settings.admin_email,
+        subject="[Kramnet] Testmejl",
+        body=(
+            "Hej!\n\n"
+            "Det här är ett testmejl från Kramnet-adminpanelen.\n"
+            "Om du ser det här fungerar SMTP-utskicket korrekt.\n\n"
+            f"Avsändare: {settings.smtp_from}\n"
+            f"Server: {settings.smtp_host}:{settings.smtp_port}\n\n"
+            "---\nKramnet"
+        ),
+    )
+    if ok:
+        return PlainTextResponse(f"Testmejl skickat till {settings.admin_email}!")
+    return PlainTextResponse("Fel: Kunde inte skicka testmejl — se server-loggen.", status_code=500)
 
 
 @router.get("/admin/hostek-test")

@@ -1,8 +1,9 @@
+import asyncio
 import logging
-from datetime import datetime, timezone
+import smtplib
+from email.mime.text import MIMEText
 from pathlib import Path
 
-import httpx
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,6 +59,23 @@ _DELETION_REQUEST_BODY: dict[str, str] = {
 }
 
 
+def _smtp_send_sync(to: str, subject: str, body: str) -> None:
+    """Blocking SMTP send — always called via run_in_executor."""
+    from_addr = f"{settings.smtp_from_name} <{settings.smtp_from}>"
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = from_addr
+    msg["To"] = to
+
+    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
+        if settings.smtp_user:
+            smtp.login(settings.smtp_user, settings.smtp_password)
+        smtp.sendmail(settings.smtp_from, [to], msg.as_string())
+
+
 class EmailService:
     def __init__(self) -> None:
         self._jinja = Environment(
@@ -77,24 +95,10 @@ class EmailService:
         audit_customer_id=None,
         audit_account_id=None,
     ) -> bool:
-        payload = {
-            "From": "Kramnet <noreply@kramnet.se>",
-            "To": to,
-            "Subject": subject,
-            "TextBody": body,
-            "MessageStream": "outbound",
-        }
         try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.post(
-                    "https://api.postmarkapp.com/email",
-                    json=payload,
-                    headers={
-                        "X-Postmark-Server-Token": settings.postmark_api_key,
-                        "Accept": "application/json",
-                    },
-                )
-                response.raise_for_status()
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, _smtp_send_sync, to, subject, body)
+            logger.info("E-post skickad till %s: %s", to, subject)
 
             if db is not None:
                 db.add(
@@ -110,15 +114,10 @@ class EmailService:
 
             return True
 
-        except httpx.HTTPStatusError as exc:
-            logger.error(
-                "Postmark API error sending to %s: %s %s",
-                to,
-                exc.response.status_code,
-                exc.response.text,
-            )
+        except smtplib.SMTPException as exc:
+            logger.error("SMTP-fel vid utskick till %s: %s", to, exc)
         except Exception as exc:
-            logger.error("Failed to send email to %s: %s", to, exc)
+            logger.error("Fel vid utskick till %s: %s", to, exc)
 
         return False
 
