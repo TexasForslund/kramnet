@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Allmänna villkor – Kramnet{% endblock %}
+
+{% block head %}
+<style>
+  .villkor-page {
+    background: #E8F0F3;
+    min-height: calc(100vh - 64px);
+    padding: 3rem 1rem 5rem;
+  }
+  .villkor-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .villkor-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 3rem 3.5rem;
+  }
+  .villkor-card h1 {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: .5rem;
+  }
+  .villkor-meta {
+    font-size: .85rem;
+    color: #6b7280;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1.5px solid #E8F0F3;
+  }
+  .villkor-card h2 {
+    font-family: 'Familjen Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #00648F;
+    margin-top: 2rem;
+    margin-bottom: .6rem;
+  }
+  .villkor-card p {
+    color: #374151;
+    font-size: .95rem;
+    line-height: 1.7;
+    margin-bottom: .75rem;
+  }
+  .villkor-card ul {
+    color: #374151;
+    font-size: .95rem;
+    line-height: 1.7;
+    padding-left: 1.4rem;
+    margin-bottom: .75rem;
+  }
+  .villkor-card ul li {
+    margin-bottom: .35rem;
+  }
+  .villkor-divider {
+    border: none;
+    border-top: 1.5px solid #E8F0F3;
+    margin: 2rem 0;
+  }
+  .villkor-contact {
+    background: #f0f7fb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-top: 2rem;
+  }
+  .villkor-contact p {
+    margin-bottom: .3rem;
+  }
+  @media (max-width: 600px) {
+    .villkor-card { padding: 2rem 1.25rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="villkor-page">
+  <div class="villkor-inner">
+    <div class="villkor-card">
+
+      <h1>Allmänna villkor</h1>
+      <p class="villkor-meta">Gäller från och med 2026-04-17 &nbsp;·&nbsp; Broadview AB</p>
+
+      <h2>1. Om tjänsten</h2>
+      <p>
+        Kramnet är en e-posttjänst som drivs av Broadview AB och tillhandahåller
+        personliga e-postadresser under domänen <strong>kramnet.se</strong>. Tjänsten
+        riktar sig till privatpersoner och familjer med anknytning till Kramforsregionen.
+      </p>
+      <p>
+        Genom att registrera ett konto accepterar kunden dessa allmänna villkor i sin
+        helhet. Villkoren kan komma att uppdateras; kunden meddelas vid väsentliga
+        förändringar.
+      </p>
+
+      <h2>2. Priser</h2>
+      <p>Tjänsten erbjuds i två paket, fakturerade årsvis:</p>
+      <ul>
+        <li><strong>Enskild</strong> – 1 e-postadress, 149 kr/år (inkl. moms)</li>
+        <li><strong>Familj</strong> – upp till 5 e-postadresser, 249 kr/år (inkl. moms)</li>
+      </ul>
+      <p>
+        Broadview AB förbehåller sig rätten att justera priserna. Befintliga kunder
+        informeras minst 30 dagar innan en prishöjning träder i kraft.
+      </p>
+
+      <h2>3. Betalning</h2>
+      <p>
+        Betalning sker vid registrering via Klarna Checkout. Tjänsten aktiveras
+        omedelbart efter genomförd betalning. Kvitto skickas till den e-postadress
+        kunden angav vid registreringen.
+      </p>
+
+      <h2>4. Förnyelse</h2>
+      <p>
+        Abonnemanget löper i ett (1) år från betalningsdatumet. Inget automatiskt
+        abonnemang tillämpas — kunden väljer själv att förnya via kundportalen.
+      </p>
+      <p>
+        En påminnelse skickas per e-post minst 30 dagar innan abonnemanget löper ut.
+        Om förnyelse inte sker inom 14 dagar efter utgångsdatum kan e-postadressen
+        frigöras och göras tillgänglig för andra.
+      </p>
+
+      <h2>5. Uppsägning och radering</h2>
+      <p>
+        Kunden kan när som helst begära att kontot avslutas och personuppgifter
+        raderas via kundportalen under <em>Inställningar → Begär radering</em>.
+        Ingen återbetalning av kvarstående abonnemangstid lämnas.
+      </p>
+      <p>
+        Vid uppsägning stängs e-postadressen inom 7 dagar och lagrad e-post
+        raderas permanent.
+      </p>
+
+      <h2>6. Ansvar och tillgänglighet</h2>
+      <p>
+        Broadview AB ansvarar för drift och underhåll av tjänsten och eftersträvar
+        hög tillgänglighet. Planerade driftstopp meddelas i förväg. Broadview AB
+        ansvarar inte för:
+      </p>
+      <ul>
+        <li>förlust av e-post till följd av fel hos avsändarens e-postleverantör</li>
+        <li>skador orsakade av omständigheter utanför Broadview ABs kontroll (force majeure)</li>
+        <li>indirekt förlust eller utebliven vinst</li>
+      </ul>
+
+      <h2>7. Personuppgifter</h2>
+      <p>
+        Broadview AB behandlar personuppgifter i enlighet med GDPR. Uppgifterna
+        används enbart för att tillhandahålla tjänsten, skicka kvitton och
+        påminnelser. Uppgifterna delas inte med tredje part utöver vad som krävs
+        för betalningshantering (Klarna).
+      </p>
+
+      <hr class="villkor-divider">
+
+      <h2>8. Kontakt</h2>
+      <div class="villkor-contact">
+        <p><strong>Broadview AB</strong></p>
+        <p>Yrkesvägen 4, 872 34 Kramfors</p>
+        <p>E-post: <a href="mailto:kramnet@broadviewab.se" style="color:#00648F;font-weight:600;">kramnet@broadviewab.se</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
