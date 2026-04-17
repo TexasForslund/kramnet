@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.models.audit_log import AuditLog
 from app.models.customer import Customer
 from app.models.email_account import AccountStatus, EmailAccount, PackageType
@@ -79,6 +80,7 @@ async def register_page(request: Request):
 
 
 @router.post("/register")
+@limiter.limit("10/minute")
 async def register_submit(
     request: Request,
     name: str = Form(...),

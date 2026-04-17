@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +40,7 @@ class Settings(BaseSettings):
     # Admin
     admin_email: str = "kramnet@broadviewab.se"
     admin_secret: str
+    allowed_admin_ips: List[str] = []
 
     # App
     base_url: str = "https://kramnet.se"

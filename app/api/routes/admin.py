@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import require_admin
+from app.core.limiter import limiter
 from app.models.audit_log import AuditLog
 from app.models.customer import Customer
 from app.models.deletion_request import DeletionRequest, DeletionStatus
@@ -102,6 +103,7 @@ async def admin_login_page(request: Request):
 
 
 @router.post("/admin/login")
+@limiter.limit("5/minute")
 async def admin_login(
     request: Request,
     password: str = Form(...),

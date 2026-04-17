@@ -1,9 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.api.routes import accounts, admin, customers, payments
 from app.api.routes import auth as auth_router
@@ -13,6 +16,7 @@ from app.api.routes import portal as portal_router
 from app.api.routes import register as register_router
 from app.core.config import settings
 from app.core.dependencies import get_current_customer  # noqa: F401 — re-exporteras
+from app.core.limiter import limiter
 from app.services.email_service import EmailService
 from app.services.scheduler import SchedulerService
 
@@ -38,6 +42,21 @@ app = FastAPI(
     debug=settings.debug,
     lifespan=lifespan,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    return response
+
 
 templates = Jinja2Templates(directory="app/templates")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

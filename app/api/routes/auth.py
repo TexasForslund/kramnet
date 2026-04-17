@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.services.auth_service import AuthService
 
 router = APIRouter()
@@ -15,9 +16,10 @@ class RequestLinkBody(BaseModel):
 
 
 @router.post("/request-link", response_class=HTMLResponse)
+@limiter.limit("5/minute")
 async def request_link(
-    body: RequestLinkBody,
     request: Request,
+    body: RequestLinkBody,
     db: AsyncSession = Depends(get_db),
 ):
     base_url = str(request.base_url).rstrip("/")
@@ -45,7 +47,7 @@ async def verify(
         value=session_token,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite="strict",
         max_age=60 * 60 * 24 * 7,  # 7 dagar
     )
     return response

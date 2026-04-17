@@ -31,11 +31,16 @@ async def get_current_customer(
 
 
 async def require_admin(request: Request) -> None:
-    from fastapi.responses import RedirectResponse
+    if settings.allowed_admin_ips:
+        client_ip = request.client.host if request.client else None
+        if client_ip not in settings.allowed_admin_ips:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Åtkomst nekad — din IP är inte tillåten",
+            )
 
     admin_secret = request.cookies.get("admin_session")
     if not admin_secret or admin_secret != settings.admin_secret:
-        # Kasta exception för API-anrop, redirect för browser-navigation
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Åtkomst nekad — logga in på /admin/login",
