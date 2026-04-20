@@ -24,6 +24,7 @@ class Customer(Base):
     )
     swish_phone: Mapped[str] = mapped_column(String(20), nullable=False)
     language: Mapped[str] = mapped_column(String(2), nullable=False, default="sv")
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_now
     )

@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
+from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +22,7 @@ _SESSION_TTL_DAYS = 7
 _MAGIC_LINK_TTL_MINUTES = 30
 
 _email_service = EmailService()
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def _hash_token(raw: str) -> str:
@@ -99,6 +101,42 @@ class AuthService:
         customer = result.scalar_one_or_none()
         await db.commit()
         return customer
+
+    async def verify_password_login(
+        self,
+        email: str,
+        password: str,
+        db: AsyncSession,
+    ) -> Customer | None:
+        result = await db.execute(
+            select(Customer).where(Customer.contact_email == email)
+        )
+        customer = result.scalar_one_or_none()
+        if customer is None or not customer.password_hash:
+            return None
+        if not _pwd_context.verify(password, customer.password_hash):
+            return None
+        db.add(AuditLog(
+            customer_id=customer.id,
+            event_type="login_password",
+            performed_by="system",
+        ))
+        await db.commit()
+        return customer
+
+    async def set_password(
+        self,
+        customer: Customer,
+        password: str,
+        db: AsyncSession,
+    ) -> None:
+        customer.password_hash = _pwd_context.hash(password)
+        db.add(AuditLog(
+            customer_id=customer.id,
+            event_type="password_set",
+            performed_by="customer",
+        ))
+        await db.commit()
 
     def create_session_token(self, customer_id: uuid.UUID) -> str:
         expire = datetime.now(timezone.utc) + timedelta(days=_SESSION_TTL_DAYS)
