@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Kramnet – E-posttjänst{% endblock %}
+
+{% block head %}
+<style>
+  main { max-width: 100%; margin: 0; padding: 0; }
+
+  .home-page {
+    min-height: calc(100vh - 64px);
+    background: #E8F0F3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.25rem;
+  }
+
+  .home-hero {
+    text-align: center;
+    margin-bottom: 2.75rem;
+  }
+
+  .home-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: .5rem;
+  }
+
+  .home-hero p {
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .home-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 1.75rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75rem;
+    text-decoration: none;
+    color: #1a1a2e;
+    transition: box-shadow 0.15s, transform 0.15s;
+    border: 1.5px solid transparent;
+  }
+
+  .home-card:hover {
+    box-shadow: 0 6px 24px rgba(0, 100, 143, 0.13);
+    border-color: #00648F;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: #1a1a2e;
+  }
+
+  .home-card-icon {
+    width: 44px;
+    height: 44px;
+    background: #E8F0F3;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #00648F;
+  }
+
+  .home-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .home-card-desc {
+    font-size: .825rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .home-card-arrow {
+    margin-top: auto;
+    color: #00648F;
+    font-size: .875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+
+  @media (max-width: 720px) {
+    .home-grid { grid-template-columns: repeat(2, 1fr); }
+    .home-hero h1 { font-size: 1.6rem; }
+  }
+
+  @media (max-width: 460px) {
+    .home-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="home-page">
+
+  <div class="home-hero">
+    <h1>Vad kan vi hjälpa dig med?</h1>
+    <p>Välj ett alternativ nedan för att komma igång.</p>
+  </div>
+
+  <div class="home-grid">
+
+    <a href="/register" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+      </div>
+      <div class="home-card-title">Skapa ett kramnet-konto</div>
+      <div class="home-card-desc">Registrera dig och välj din egna @kramnet.se-adress.</div>
+      <div class="home-card-arrow">Kom igång →</div>
+    </a>
+
+    <a href="https://webmail.kramnet.se" target="_blank" rel="noopener" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+      </div>
+      <div class="home-card-title">Gå till webmail</div>
+      <div class="home-card-desc">Läs och skicka e-post direkt i webbläsaren.</div>
+      <div class="home-card-arrow">Öppna webmail ↗</div>
+    </a>
+
+    <a href="/auth/login" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="home-card-title">Byt lösenord</div>
+      <div class="home-card-desc">Logga in på kundportalen och byt lösenord för ditt konto.</div>
+      <div class="home-card-arrow">Logga in →</div>
+    </a>
+
+    <a href="/faq" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="home-card-title">FAQ</div>
+      <div class="home-card-desc">Vanliga frågor och svar om Kramnet och e-posttjänsten.</div>
+      <div class="home-card-arrow">Läs mer →</div>
+    </a>
+
+    <a href="/support" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <div class="home-card-title">Support</div>
+      <div class="home-card-desc">Kontakta oss om du behöver hjälp med ditt konto eller tjänsten.</div>
+      <div class="home-card-arrow">Kontakta oss →</div>
+    </a>
+
+    <a href="/auth/login" class="home-card">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+      </div>
+      <div class="home-card-title">Hantera betalningar</div>
+      <div class="home-card-desc">Se fakturor, förnya prenumeration och hantera betalningar.</div>
+      <div class="home-card-arrow">Till portalen →</div>
+    </a>
+
+  </div>
+</div>
+{% endblock %}

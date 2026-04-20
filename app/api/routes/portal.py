@@ -51,9 +51,7 @@ async def _get_owned_account(
 
 @router.get("/")
 async def root(request: Request):
-    if request.cookies.get("session"):
-        return RedirectResponse("/portal/dashboard", status_code=302)
-    return RedirectResponse("/auth/login", status_code=302)
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @router.get("/auth/login")
