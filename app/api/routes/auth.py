@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from pydantic import BaseModel, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -11,21 +10,15 @@ router = APIRouter()
 _auth_service = AuthService()
 
 
-class RequestLinkBody(BaseModel):
-    email: EmailStr
-
-
 @router.post("/request-link", response_class=HTMLResponse)
 @limiter.limit("5/minute")
 async def request_link(
     request: Request,
-    body: RequestLinkBody,
+    email: str = Form(...),
     db: AsyncSession = Depends(get_db),
 ):
     base_url = str(request.base_url).rstrip("/")
-    # Anropa oavsett utfall — avslöja aldrig om adressen finns
-    await _auth_service.generate_magic_link(body.email, db, base_url)
-    # HTMX-svar: byt ut formuläret mot bekräftelsetext
+    await _auth_service.generate_magic_link(email.strip().lower(), db, base_url)
     return HTMLResponse(
         '<p id="login-form" class="notice">Kolla din e-post — länken är giltig i 30 minuter.</p>'
     )
