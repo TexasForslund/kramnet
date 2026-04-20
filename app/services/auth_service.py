@@ -4,8 +4,8 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import bcrypt as _bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +22,6 @@ _SESSION_TTL_DAYS = 7
 _MAGIC_LINK_TTL_MINUTES = 30
 
 _email_service = EmailService()
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def _hash_token(raw: str) -> str:
@@ -114,7 +113,7 @@ class AuthService:
         customer = result.scalar_one_or_none()
         if customer is None or not customer.password_hash:
             return None
-        if not _pwd_context.verify(password, customer.password_hash):
+        if not _bcrypt.checkpw(password.encode(), customer.password_hash.encode()):
             return None
         db.add(AuditLog(
             customer_id=customer.id,
@@ -130,7 +129,9 @@ class AuthService:
         password: str,
         db: AsyncSession,
     ) -> None:
-        customer.password_hash = _pwd_context.hash(password)
+        customer.password_hash = _bcrypt.hashpw(
+            password.encode(), _bcrypt.gensalt()
+        ).decode()
         db.add(AuditLog(
             customer_id=customer.id,
             event_type="password_set",
